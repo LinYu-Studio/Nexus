@@ -1,0 +1,20 @@
+[
+  {
+    "id": "1",
+    "user_id": "4",
+    "title": "余额调整",
+    "content": "您的账户已扣除1.0元",
+    "type": "balance_adjustment",
+    "is_read": false,
+    "created_at": "2025-10-05 23:36:33"
+  },
+  {
+    "id": "2",
+    "user_id": "3",
+    "title": "充值成功",
+    "content": "您的账户已充值1.0元，充值方式：alipay",
+    "type": "recharge_success",
+    "is_read": false,
+    "created_at": "2025-10-05 23:40:48"
+  }
+]

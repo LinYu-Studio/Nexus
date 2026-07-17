@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nexus - 让游戏分享变得简单</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="mica" aria-hidden="true"></div>
+<div class="mica-noise" aria-hidden="true"></div>
+
+<div class="title-bar acrylic">
+  <span class="title-text">Nexus</span>
+</div>
+
+<div class="main-layout">
+  <!-- Sidebar -->
+  <div class="sidebar sidebar-acrylic">
+    <div class="nav-section">
+      <div class="nav-label">游戏</div>
+      <a href="/" class="nav-item active">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg>
+        <span>游戏库</span>
+      </a>
+      {% if current_user %}
+      <a href="/upload" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+        <span>上传游戏</span>
+      </a>
+      <a href="/my_games" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        <span>我的游戏</span>
+      </a>
+      <a href="/my_projects" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
+        <span>我的项目</span>
+      </a>
+      {% if current_user.is_developer %}<a href="/developer" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg><span>开发者平台</span></a>{% endif %}
+      {% endif %}
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">社交</div>
+      {% if current_user %}
+      <a href="/mailbox" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        <span>邮箱</span>
+      </a>
+      <a href="/search_users" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <span>搜索用户</span>
+      </a>
+      <a href="/appeals" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
+        <span>申诉</span>
+      </a>
+      {% endif %}
+    </div>
+    {% if current_user and current_user.is_admin %}
+    <div class="nav-section">
+      <div class="nav-label">管理</div>
+      <a href="/admin/users" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+        <span>用户管理</span>
+      </a>
+      <a href="/admin/projects" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+        <span>项目管理</span>
+      </a>
+      <a href="/admin/appeals" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
+        <span>申诉管理</span>
+      </a>
+      <a href="/admin/price_requests" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
+        <span>收费申请</span>
+      </a>
+      <a href="/admin/recharge" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+        <span>用户充值</span>
+      </a>
+    </div>
+    {% endif %}
+    {% if current_user %}
+    <div class="nav-user">
+      <div class="nav-user-avatar">{{ current_user.username[:1].upper() }}</div>
+      <span>{{ current_user.username }}{% if current_user.is_admin %} (管理员){% endif %}</span>
+      <a href="/logout" class="logout-btn">退出</a>
+    </div>
+    {% else %}
+    <div class="nav-user" style="cursor:default;">
+      <div class="nav-user-avatar">?</div>
+      <span>未登录</span>
+      <div style="margin-left:auto;display:flex;gap:4px;">
+        <a href="/login" class="logout-btn" style="font-size:11px;color:var(--text-tertiary);padding:4px 8px;border-radius:var(--radius-sm);text-decoration:none;">登录</a>
+        <a href="/register" class="logout-btn" style="font-size:11px;color:var(--text-tertiary);padding:4px 8px;border-radius:var(--radius-sm);text-decoration:none;">注册</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Content -->
+  <div class="content acrylic-layer">
+    <!-- Flash Messages -->
+    <div class="message-section" id="flashMessages">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="message">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    <!-- Search -->
+    <div class="search-section">
+      <form action="/" method="get" class="search-form">
+        <div class="search-input-container">
+          <input type="text" name="search" placeholder="搜索游戏名称..." value="{{ search_query }}" class="search-input">
+          <button type="submit" class="search-button">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2" fill="none"/><line x1="21" y1="21" x2="16.65" y2="16.65" stroke="currentColor" stroke-width="2"/></svg>
+            搜索
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Games -->
+    <div class="page-header" style="margin-bottom:16px;">
+      <h1>游戏列表</h1>
+      {% if current_user %}
+      <div style="display:flex;align-items:center;gap:12px;">
+        {% if session.is_banned %}<span style="font-size:12px;color:var(--danger);">下载次数：{{ session.download_count or 0 }}/3</span>{% endif %}
+        <div class="wallet-container">
+          <span class="wallet-balance" id="walletBalance">Nexus钱包 ¥{{ "%.2f"|format(current_user.wallet_balance or 0) }}</span>
+          <div class="wallet-dropdown" id="walletDropdown">
+            <div class="wallet-option" id="rechargeOption">为您的Nexus钱包充值</div>
+            <div class="wallet-option" id="customerServiceOption">Nexus客服</div>
+          </div>
+        </div>
+        <div class="settings-container">
+          <button id="settingsButton" class="settings-button">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if games %}
+    <div class="games-container">
+      {% for game in games %}
+      <div class="game-card" onclick="location.href='/game/{{ game.id }}'" style="cursor:pointer;">
+        <h3>{{ game.title }}</h3>
+        <div class="author">作者: {{ game.author }}</div>
+        {% if current_user and current_user.is_admin %}
+        <div class="publisher">发布: {{ game.username or '未知' }}</div>
+        {% endif %}
+  <div class="origin-badge">
+    {% if game.origin == 'original' %}<span class="badge badge-original"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>原创</span>{% endif %}
+    {% if game.release_status == 'coming_soon' %}<span class="badge badge-coming"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>计划发行</span>{% endif %}
+  </div>
+  <div class="description">{{ game.description }}</div>
+  {% if game.release_status == 'coming_soon' and game.release_date %}
+  <div class="coming-soon" style="font-size:13px;color:var(--accent);margin-bottom:8px;">
+    即将于 {{ game.release_date }} 发布
+  </div>
+  {% endif %}
+        {% if game.tags and game.tags|length > 0 %}
+        <div class="game-tags">
+          {% for tag in game.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+        </div>
+        {% endif %}
+        <div class="game-meta">
+          <span>上传: {{ game.upload_time }}</span>
+          <span>下载: {{ game.downloads }}</span>
+          <span>浏览: {{ game.views }}</span>
+        </div>
+        <div class="game-size">大小: {{ game.file_size }}</div>
+
+        <div class="security-status">
+          {% if game.security_status == 'official' %}<span class="status-official">🏆 官方安全验证</span>
+          {% elif game.security_status == 'pending' %}<span class="status-pending">安全检测中...</span>
+          {% elif game.security_status == 'passed' %}<span class="status-passed">已通过安全检测</span>
+          {% elif game.security_status == 'risk' %}
+          <span class="status-risk clickable" onclick="event.stopPropagation();toggleRiskInfo('{{ game.id }}')">安全检测存在风险</span>
+          <div id="risk-info-{{ game.id }}" class="risk-info" style="display:none;">
+            <p>风险原因：该文件被检测出可能包含潜在风险内容。</p>
+            {% if current_user and current_user.id == game.user_id %}<a href="/appeal/create/{{ game.id }}" class="appeal-btn">提交申诉</a>{% endif %}
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="game-actions">
+          {% if game.release_status == 'coming_soon' %}
+          <span class="btn btn-ghost" style="cursor:default;opacity:0.6;">即将推出</span>
+          {% elif game.price and game.price > 0 %}
+          <button class="btn purchase-btn" onclick="event.stopPropagation();showPurchaseConfirmPopup('{{ game.id }}','{{ game.title }}',{{ game.price }})">{{ '下载' if current_user and 'purchased_games' in current_user and game.id in current_user.purchased_games else '购买' }} (¥{{ game.price }})</button>
+          {% else %}
+          <a href="/download/{{ game.id }}" class="btn download-btn" onclick="event.stopPropagation();">下载</a>
+          {% endif %}
+          {% if game.is_folder %}<a href="/browse/{{ game.id }}" class="btn browse-btn" onclick="event.stopPropagation();">浏览文件夹</a>{% endif %}
+          <a href="/game/{{ game.id }}" class="btn btn-ghost" onclick="event.stopPropagation();">详情</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-games"><p>暂无游戏上传</p></div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Ban Popup -->
+{% if current_user and session.is_banned %}
+<div class="ban-popup-overlay" id="banOverlay" style="display:block;">
+  <div class="ban-popup">
+    <h3>您的账户已被封禁</h3>
+    <p>封禁原因：{{ session.ban_reason }}</p>
+    <p>剩余时间：{{ session.ban_remaining }}</p>
+    {% if session.ban_expire != '永久封禁' %}<p>预计解封：{{ session.ban_expire }}</p>{% endif %}
+    <p>封禁期间您只能下载游戏（每天最多3次），无法进行聊天及上传游戏等操作。</p>
+    <button onclick="document.getElementById('banOverlay').style.display='none'">我知道了</button>
+  </div>
+</div>
+{% endif %}
+
+<!-- Notification Popup -->
+<div class="notification-overlay" id="notificationOverlay" style="display:none;">
+  <div class="notification-popup">
+    <h3 id="notificationTitle">通知</h3>
+    <div id="notificationContent"></div>
+    <button onclick="markNotificationAsRead()">我已知晓</button>
+  </div>
+</div>
+
+<!-- Settings Popup -->
+<div class="settings-overlay" id="settingsOverlay" style="display:none;">
+  <div class="settings-popup">
+    <div class="settings-header">
+      <h3>设置</h3>
+      <button class="close-button" onclick="closeSettingsPopup()">×</button>
+    </div>
+    <div class="settings-content">
+      <div class="setting-item">
+        <label for="theme-toggle">主题模式</label>
+        <div class="theme-switch">
+          <input type="checkbox" id="theme-toggle">
+          <label for="theme-toggle" class="theme-slider"></label>
+          <span id="theme-label">亮色模式</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Purchase Confirm Popup -->
+<div class="modal" id="purchaseConfirmPopup" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>购买游戏</h3>
+      <button class="close-btn" onclick="closePurchaseConfirmPopup()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="purchaseGameId"><input type="hidden" id="purchasePrice">
+      <p>此项目为付费项目</p>
+      <p><strong>游戏名称：</strong><span id="purchaseGameTitle"></span></p>
+      <p><strong>价格：</strong>¥<span id="purchaseGamePrice"></span></p>
+      <p><strong>您的账户余额：</strong>¥<span id="purchaseUserBalance"></span></p>
+      {% if current_user and 'wallet_balance' in current_user and current_user.wallet_balance > 0 %}
+      <p>确认购买此游戏吗？购买后将从您的账户余额中扣除相应金额。</p>
+      {% else %}<p>您的余额不足，请先充值。</p>{% endif %}
+    </div>
+    <div class="modal-footer">
+      <button class="btn confirm-btn" onclick="purchaseGame()">确认购买</button>
+      <button class="btn cancel-btn" onclick="closePurchaseConfirmPopup()">取消</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentNotificationId = null;
+
+// Auto theme
+(function() {
+  const h = new Date().getHours();
+  const theme = (h >= 6 && h < 18) ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+  const saved = localStorage.getItem('lvmotheme');
+  if (saved === 'dark' || saved === 'light') document.documentElement.setAttribute('data-theme', saved);
+})();
+
+// Risk toggle
+function toggleRiskInfo(gid) {
+  const el = document.getElementById('risk-info-' + gid);
+  if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+}
+
+// Notifications
+function checkNotifications() { {% if session.has_unread_notifications %}fetchNotifications();{% endif %} }
+function fetchNotifications() {
+  fetch('/api/notifications/unread').then(r=>r.json()).then(d=>{
+    if(d.success&&d.notifications&&d.notifications.length) showNotification(d.notifications[0]);
+  }).catch(()=>{});
+}
+function showNotification(n) {
+  currentNotificationId = n.id;
+  document.getElementById('notificationTitle').textContent = n.title;
+  document.getElementById('notificationContent').textContent = typeof n.content === 'object' ? JSON.stringify(n.content) : n.content;
+  document.getElementById('notificationOverlay').style.display = 'block';
+}
+function markNotificationAsRead() {
+  document.getElementById('notificationOverlay').style.display = 'none';
+  if (currentNotificationId) {
+    fetch('/api/notifications/read/' + currentNotificationId, {method:'POST',headers:{'Content-Type':'application/json'}}).then(()=>{currentNotificationId=null;fetchNotifications();}).catch(()=>{});
+  }
+}
+
+// Settings
+document.addEventListener('DOMContentLoaded', function() {
+  const sb = document.getElementById('settingsButton');
+  const so = document.getElementById('settingsOverlay');
+  const tt = document.getElementById('theme-toggle');
+  const tl = document.getElementById('theme-label');
+  if (sb) sb.addEventListener('click',()=>{so.style.display='flex';});
+  if (tt) {
+    const saved = localStorage.getItem('lvmotheme');
+    if (saved === 'dark') { tt.checked = true; tl.textContent = '深色模式'; }
+    tt.addEventListener('change', function() {
+      const theme = this.checked ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', theme);
+      tl.textContent = this.checked ? '深色模式' : '亮色模式';
+      localStorage.setItem('lvmotheme', theme);
+    });
+  }
+});
+function closeSettingsPopup() { document.getElementById('settingsOverlay').style.display = 'none'; }
+
+// Wallet
+document.addEventListener('DOMContentLoaded', function() {
+  const wb = document.getElementById('walletBalance');
+  const wd = document.getElementById('walletDropdown');
+  if (wb && wd) {
+    wb.addEventListener('click', function(e) { e.stopPropagation(); wd.style.display = wd.style.display === 'block' ? 'none' : 'block'; });
+    document.addEventListener('click', function() { wd.style.display = 'none'; });
+    wd.addEventListener('click', function(e) { e.stopPropagation(); });
+    document.getElementById('rechargeOption')?.addEventListener('click', function() { showPaymentMethodPopup(); wd.style.display = 'none'; });
+    document.getElementById('customerServiceOption')?.addEventListener('click', function() { window.location.href = '/mailbox?user_id=1'; wd.style.display = 'none'; });
+  }
+});
+
+// Payment
+function showPaymentMethodPopup() {
+  let popup = document.getElementById('paymentMethodPopup');
+  if (popup) { popup.style.display = 'block'; return; }
+  popup = document.createElement('div'); popup.id = 'paymentMethodPopup'; popup.className = 'payment-popup';
+  popup.innerHTML = '<div class="payment-popup-content"><div class="payment-popup-header"><h3>选择支付方式</h3><button class="close-button" onclick="closePaymentMethodPopup()">×</button></div><div class="payment-methods"><div class="payment-method" id="alipayMethod"><span>支付宝</span></div><div class="payment-method" id="wechatMethod"><span>微信</span></div></div></div>';
+  document.body.appendChild(popup);
+  document.getElementById('alipayMethod').addEventListener('click',()=>showPaymentQRCode('alipay'));
+  document.getElementById('wechatMethod').addEventListener('click',()=>showPaymentQRCode('wechat'));
+}
+function closePaymentMethodPopup() {
+  const popup = document.getElementById('paymentMethodPopup');
+  if (popup) {
+    if (confirm('您是否已完成支付？如果已完成，请联系管理员进行充值确认。')) {
+      const amount = prompt('请输入您的支付金额：');
+      if (amount && !isNaN(amount) && amount > 0) {
+        const records = JSON.parse(localStorage.getItem('paymentRecords') || '[]');
+        records.push({amount:parseFloat(amount),time:new Date().toLocaleString(),status:'pending'});
+        localStorage.setItem('paymentRecords',JSON.stringify(records));
+        alert('支付信息已记录，请等待管理员审核确认，充值将在24小时内到账。');
+      }
+    }
+    popup.style.display = 'none';
+  }
+}
+function showPaymentQRCode(type) {
+  let qrPopup = document.getElementById('paymentQRCodePopup');
+  if (qrPopup) document.body.removeChild(qrPopup);
+  qrPopup = document.createElement('div'); qrPopup.id = 'paymentQRCodePopup'; qrPopup.className = 'payment-popup';
+  const src = type === 'alipay' ? '/支付宝收款.jpg' : '/微信收款.png';
+  const name = type === 'alipay' ? '支付宝' : '微信';
+  qrPopup.innerHTML = '<div class="payment-popup-content"><div class="payment-popup-header"><h3>'+name+'支付</h3><button class="close-button" onclick="closePaymentQRCodePopup()">×</button></div><div class="qr-code-container"><img src="'+src+'" alt="'+name+'收款码" class="payment-qr-code"><p class="payment-note">充值后24小时内到账，充值金额自定义</p></div></div>';
+  document.body.appendChild(qrPopup);
+}
+function closePaymentQRCodePopup() {
+  const popup = document.getElementById('paymentQRCodePopup');
+  if (popup && confirm('您是否已完成支付？如果已完成，请填写支付金额。')) {
+    const amount = prompt('请输入支付金额（元）：');
+    if (amount) {
+      const a = parseFloat(amount);
+      if (isNaN(a)||a<=0) alert('请输入有效的金额');
+      else { alert('充值申请已提交，请等待管理员处理'); }
+    }
+    popup.style.display = 'none';
+  }
+}
+
+// Purchase
+function showPurchaseConfirmPopup(gid, gtitle, gprice) {
+  document.getElementById('purchaseGameTitle').textContent = gtitle;
+  document.getElementById('purchaseGamePrice').textContent = gprice;
+  document.getElementById('purchaseUserBalance').textContent = '0.00';
+  document.getElementById('purchaseGameId').value = gid;
+  document.getElementById('purchasePrice').value = gprice;
+  document.getElementById('purchaseConfirmPopup').style.display = 'flex';
+}
+function purchaseGame() {
+  const gid = document.getElementById('purchaseGameId').value;
+  const price = parseFloat(document.getElementById('purchasePrice').value);
+  fetch('/api/user/wallet/balance').then(r=>r.json()).then(d=>{
+    const bal = d.balance||0;
+    if (bal < price) { alert('余额不足，请先充值。'); return; }
+    return fetch('/api/game/purchase',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({game_id:gid,price:price})});
+  }).then(r=>r.json()).then(d=>{
+    if (d.success) { alert('购买成功！'); closePurchaseConfirmPopup(); window.location.reload(); }
+    else alert('购买失败：'+d.message);
+  }).catch(()=>{});
+}
+function closePurchaseConfirmPopup() {
+  document.getElementById('purchaseConfirmPopup').style.display = 'none';
+}
+document.addEventListener('DOMContentLoaded', function() { checkNotifications(); });
+</script>
+</body>
+</html>

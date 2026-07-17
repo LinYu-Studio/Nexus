@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>编辑项目 - Nexus</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="mica" aria-hidden="true"></div>
+<div class="mica-noise" aria-hidden="true"></div>
+<div class="title-bar acrylic"><span class="title-text">Nexus</span></div>
+<div class="main-layout">
+  <div class="sidebar sidebar-acrylic">
+    <div class="nav-section">
+      <div class="nav-label">游戏</div>
+      <a href="/" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg><span>游戏库</span></a>
+      <a href="/upload" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg><span>上传游戏</span></a>
+      <a href="/my_games" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span>我的游戏</span></a>
+      <a href="/my_projects" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg><span>我的项目</span></a>
+      {% if current_user.is_developer %}<a href="/developer" class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg><span>开发者平台</span></a>{% endif %}
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">社交</div>
+      <a href="/mailbox" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><span>邮箱</span></a>
+      <a href="/search_users" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><span>搜索用户</span></a>
+      <a href="/appeals" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg><span>申诉</span></a>
+    </div>
+    <div class="nav-user">
+      <div class="nav-user-avatar">{{ current_user.username[:1].upper() }}</div>
+      <span>{{ current_user.username }}{% if current_user.is_admin %} (管理员){% endif %}</span>
+      <a href="/logout" class="logout-btn">退出</a>
+    </div>
+  </div>
+  <div class="content acrylic-layer">
+    <div class="message-section">
+      {% with messages = get_flashed_messages() %}{% if messages %}{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}{% endif %}{% endwith %}
+    </div>
+    <div class="page-header">
+      <h1>编辑项目 - {{ game.title }}</h1>
+      <a href="/developer/projects" class="btn btn-ghost" style="font-size:13px;text-decoration:none;">← 返回项目管理</a>
+    </div>
+
+    <div class="form-container" style="max-width:600px;">
+      <form method="POST" action="/developer/project/{{ game.id }}/edit" enctype="multipart/form-data">
+        <div class="form-group">
+          <label>游戏标题 *</label>
+          <input type="text" name="title" value="{{ game.title }}" required style="width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-primary);font-size:14px;">
+        </div>
+        <div class="form-group">
+          <label>描述 *</label>
+          <textarea name="description" rows="4" required style="width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-primary);font-size:14px;resize:vertical;">{{ game.description }}</textarea>
+        </div>
+        <div class="form-group">
+          <label>作者 *</label>
+          <input type="text" name="author" value="{{ game.author }}" required style="width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-primary);font-size:14px;">
+        </div>
+        <div class="form-group">
+          <label>开发商</label>
+          <input type="text" name="publisher" value="{{ game.publisher or '' }}" style="width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-primary);font-size:14px;">
+        </div>
+        <div class="form-group">
+          <label>发行商</label>
+          <input type="text" name="distributor" value="{{ game.distributor or '' }}" style="width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-primary);font-size:14px;">
+        </div>
+        <div class="form-group">
+          <label>价格 (¥)，0表示免费</label>
+          <input type="number" name="price" min="0" step="0.01" value="{{ game.price or 0 }}" style="width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-primary);font-size:14px;">
+        </div>
+        <div class="form-group">
+          <label>更新版本（可选，上传新文件）</label>
+          <input type="text" name="new_version" placeholder="如 2.0" style="width:100%;padding:8px 12px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-primary);font-size:14px;">
+          <small style="color:var(--text-tertiary);font-size:12px;">填写版本号并选择文件可更新游戏版本</small>
+        </div>
+        <div class="form-group">
+          <label>选择新文件（可选）</label>
+          <input type="file" name="game_file" style="font-size:13px;">
+        </div>
+
+        <!-- 系统配置要求 -->
+        <div style="margin-bottom:16px;">
+          <label style="font-size:13px;font-weight:600;color:var(--text-primary);display:block;margin-bottom:8px;">系统配置要求</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="specs-group" style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px;">
+              <div style="font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">最低配置</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;">
+                <span style="color:var(--text-tertiary);">操作系统</span><input type="text" name="min_os" value="{{ game.min_specs.get('os','') }}" placeholder="如 Windows 10" style="width:100%;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-secondary);color:var(--text-primary);font-size:12px;">
+                <span style="color:var(--text-tertiary);">处理器</span><input type="text" name="min_cpu" value="{{ game.min_specs.get('cpu','') }}" placeholder="如 Intel Core i5" style="width:100%;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-secondary);color:var(--text-primary);font-size:12px;">
+                <span style="color:var(--text-tertiary);">内存</span><input type="text" name="min_ram" value="{{ game.min_specs.get('ram','') }}" placeholder="如 8 GB" style="width:100%;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-secondary);color:var(--text-primary);font-size:12px;">
+                <span style="color:var(--text-tertiary);">显卡</span><input type="text" name="min_gpu" value="{{ game.min_specs.get('gpu','') }}" placeholder="如 GTX 960" style="width:100%;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-secondary);color:var(--text-primary);font-size:12px;">
+                <span style="color:var(--text-tertiary);">存储空间</span><input type="text" name="min_storage" value="{{ game.min_specs.get('storage','') }}" placeholder="如 10 GB" style="width:100%;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-secondary);color:var(--text-primary);font-size:12px;">
+                <span style="color:var(--text-tertiary);">DirectX</span><input type="text" name="min_dx" value="{{ game.min_specs.get('dx','') }}" placeholder="如 Version 11" style="width:100%;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-secondary);color:var(--text-primary);font-size:12px;">
+              </div>
+            </div>
+            <div class="specs-group" style="background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:var(--radius-md);padding:12px;">
+              <div style="font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">推荐配置</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;">
+                <span style="color:var(--text-tertiary);">操作系统</span><input type="text" name="rec_os" value="{{ game.rec_specs.get('os','') }}" placeholder="如 Windows 11" style="width:100%;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-secondary);color:var(--text-primary);font-size:12px;">
+                <span style="color:var(--text-tertiary);">处理器</span><input type="text" name="rec_cpu" value="{{ game.rec_specs.get('cpu','') }}" placeholder="如 Intel Core i7" style="width:100%;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-secondary);color:var(--text-primary);font-size:12px;">
+                <span style="color:var(--text-tertiary);">内存</span><input type="text" name="rec_ram" value="{{ game.rec_specs.get('ram','') }}" placeholder="如 16 GB" style="width:100%;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-secondary);color:var(--text-primary);font-size:12px;">
+                <span style="color:var(--text-tertiary);">显卡</span><input type="text" name="rec_gpu" value="{{ game.rec_specs.get('gpu','') }}" placeholder="如 GTX 1660" style="width:100%;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-secondary);color:var(--text-primary);font-size:12px;">
+                <span style="color:var(--text-tertiary);">存储空间</span><input type="text" name="rec_storage" value="{{ game.rec_specs.get('storage','') }}" placeholder="如 20 GB" style="width:100%;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-secondary);color:var(--text-primary);font-size:12px;">
+                <span style="color:var(--text-tertiary);">DirectX</span><input type="text" name="rec_dx" value="{{ game.rec_specs.get('dx','') }}" placeholder="如 Version 12" style="width:100%;padding:4px 6px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-secondary);color:var(--text-primary);font-size:12px;">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions" style="display:flex;gap:8px;margin-top:16px;">
+          <button type="submit" class="btn btn-accent" style="border:none;cursor:pointer;">保存修改</button>
+          <a href="/developer/projects" class="btn btn-ghost" style="border:none;cursor:pointer;text-decoration:none;">取消</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<script>
+(function(){const h=new Date().getHours();document.documentElement.setAttribute('data-theme',(h>=6&&h<18)?'light':'dark');const s=localStorage.getItem('lvmotheme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s);})();
+</script>
+</body>
+</html>

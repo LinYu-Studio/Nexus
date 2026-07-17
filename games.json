@@ -1,0 +1,78 @@
+[
+    {
+        "id": "1",
+        "title": "OBS Studio 32.1.2 Windows",
+        "description": "OBS Studio 32.1.2 Windows官方版本",
+        "author": "Microsoft",
+        "filename": "OBS-Studio-32.1.2-Windows-x64-Installer.exe",
+        "upload_time": "2026-06-06 02:31:16",
+        "downloads": 10,
+        "is_folder": false,
+        "user_id": "4",
+        "username": "FGPLAY",
+        "tags": [
+            "package"
+        ],
+        "security_status": "official",
+        "security_check_time": "2026-06-06 02:31:16",
+        "origin": "repost",
+        "verified_by": "admin",
+        "verified_time": "2026-06-06 02:58:53",
+        "release_status": "released",
+        "release_date": null,
+        "views": 9,
+        "min_specs": {},
+        "rec_specs": {}
+    },
+    {
+        "id": "2",
+        "title": "Rain Island Demo 0.1.5",
+        "description": "Rain Island 0.1.5 测试版本",
+        "author": "Rain Island 制作团队",
+        "publisher": "Rain Island 制作团队",
+        "distributor": "LinYu Studio",
+        "filename": "Rain Island Demo 0.1.5.exe",
+        "upload_time": "2026-06-06 03:33:48",
+        "downloads": 7,
+        "is_folder": true,
+        "user_id": "4",
+        "username": "FGPLAY",
+        "tags": [
+            "生存",
+            "免费开玩",
+            "冒险",
+            "game"
+        ],
+        "origin": "original",
+        "price": 0.99,
+        "release_status": "released",
+        "release_date": null,
+        "security_status": "official",
+        "security_check_time": null,
+        "review_status": "approved",
+        "review_submit_time": "2026-06-06 03:33:48",
+        "reviewed_by": "admin",
+        "review_time": "2026-06-06 03:37:11",
+        "review_notes": "管理员审核通过（已检测到潜在风险）",
+        "auto_reviewed": false,
+        "views": 13,
+        "verified_by": "admin",
+        "verified_time": "2026-06-06 03:37:23",
+        "min_specs": {
+            "os": "",
+            "cpu": "",
+            "ram": "",
+            "gpu": "",
+            "storage": "",
+            "dx": ""
+        },
+        "rec_specs": {
+            "os": "",
+            "cpu": "",
+            "ram": "",
+            "gpu": "",
+            "storage": "",
+            "dx": ""
+        }
+    }
+]

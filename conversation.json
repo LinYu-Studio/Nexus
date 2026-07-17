@@ -1,0 +1,155 @@
+[
+    {
+        "user1_id": "1",
+        "user1_name": "admin",
+        "user2_id": "2",
+        "user2_name": "qw",
+        "messages": [
+            {
+                "sender_id": "1",
+                "sender_name": "admin",
+                "content": "欢迎来到LVMO_GAME！祝您使用愉快！",
+                "timestamp": "2025-10-05 12:00:07"
+            },
+            {
+                "sender_id": "2",
+                "sender_name": "qw",
+                "content": "tt",
+                "timestamp": "2025-10-05 12:01:28"
+            },
+            {
+                "sender_id": "2",
+                "sender_name": "qingjiu",
+                "content": "你妈的",
+                "timestamp": "2025-10-05 13:25:34"
+            },
+            {
+                "sender_id": "2",
+                "sender_name": "qingjiu",
+                "content": "傻逼吧",
+                "timestamp": "2025-10-05 13:25:42"
+            }
+        ],
+        "last_updated": "2025-10-05 13:25:42"
+    },
+    {
+        "user1_id": "3",
+        "user1_name": "dalei",
+        "user2_id": "1",
+        "user2_name": "admin",
+        "messages": [
+            {
+                "sender_id": "3",
+                "sender_name": "dalei",
+                "content": "你好啊，管理员",
+                "timestamp": "2025-10-05 16:14:56"
+            },
+            {
+                "sender_id": "1",
+                "sender_name": "admin",
+                "content": "你好",
+                "timestamp": "2025-10-05 16:15:12"
+            },
+            {
+                "sender_id": "3",
+                "sender_name": "dalei",
+                "content": "我想试试代理管理员",
+                "timestamp": "2025-10-05 16:15:26"
+            },
+            {
+                "sender_id": "1",
+                "sender_name": "admin",
+                "content": "那不行",
+                "timestamp": "2025-10-05 16:15:34"
+            },
+            {
+                "sender_id": "3",
+                "sender_name": "dalei",
+                "content": "那就删了吧",
+                "timestamp": "2025-10-05 16:57:56"
+            },
+            {
+                "sender_id": "1",
+                "sender_name": "admin",
+                "content": "好的，谢谢配合！",
+                "timestamp": "2025-10-05 16:59:51"
+            },
+            {
+                "sender_id": "3",
+                "sender_name": "dalei",
+                "content": "我要退款",
+                "timestamp": "2025-10-05 23:41:18"
+            }
+        ],
+        "last_updated": "2025-10-05 23:41:18"
+    },
+    {
+        "user1_id": "3",
+        "user1_name": "dalei",
+        "user2_id": "2",
+        "user2_name": "qingjiu",
+        "messages": [
+            {
+                "sender_id": "3",
+                "sender_name": "dalei",
+                "content": "你好啊",
+                "timestamp": "2025-10-05 17:37:06"
+            },
+            {
+                "sender_id": "2",
+                "sender_name": "qingjiu",
+                "content": "你好啊",
+                "timestamp": "2025-10-05 17:37:27"
+            },
+            {
+                "sender_id": "3",
+                "sender_name": "dalei",
+                "content": "呜呜被封号了",
+                "timestamp": "2025-10-05 17:37:43"
+            },
+            {
+                "sender_id": "2",
+                "sender_name": "qingjiu",
+                "content": "别说了我也被封过",
+                "timestamp": "2025-10-05 17:37:56"
+            },
+            {
+                "sender_id": "3",
+                "sender_name": "dalei",
+                "content": "呵呵",
+                "timestamp": "2025-10-05 17:38:01"
+            }
+        ],
+        "last_updated": "2025-10-05 17:38:01"
+    },
+    {
+        "user1_id": "3",
+        "user1_name": "dalei",
+        "user2_id": "4",
+        "user2_name": "FGPLAY",
+        "messages": [
+            {
+                "sender_id": "3",
+                "sender_name": "dalei",
+                "content": "欢迎来到LVMO_GAME！祝您使用愉快！",
+                "timestamp": "2025-10-05 19:31:24"
+            }
+        ],
+        "last_updated": "2025-10-05 19:31:24"
+    },
+    {
+        "user1_id": "4",
+        "user1_name": "FGPLAY",
+        "user2_id": "1",
+        "user2_name": "admin",
+        "messages": [
+            {
+                "sender_id": "4",
+                "sender_name": "FGPLAY",
+                "content": "你好",
+                "timestamp": "2025-10-05 23:32:04"
+            }
+        ],
+        "last_updated": "2025-10-05 23:32:04"
+    }
+]

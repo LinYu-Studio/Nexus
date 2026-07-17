@@ -1,0 +1,52 @@
+[
+    {
+        "id": "1",
+        "user_id": "3",
+        "username": "dalei",
+        "game_id": "2",
+        "game_title": "很好玩的！",
+        "reason": "我就是放了个文本啊！",
+        "evidence_files": [
+            "appeal_evidence\\08836044-4ab0-4996-b0eb-33bf5a9114d7_malware.bat.txt"
+        ],
+        "status": "rejected",
+        "admin_reason": "删了可以吗？这个文件没有使用价值",
+        "created_at": "2025-10-05 16:47:33"
+    },
+    {
+        "id": "2",
+        "user_id": "3",
+        "username": "dalei",
+        "game_id": "2",
+        "game_title": "好玩",
+        "reason": "你妈！",
+        "evidence_files": [],
+        "status": "rejected",
+        "admin_reason": "第二次见有人敢骂管理员",
+        "created_at": "2025-10-05 17:09:19"
+    },
+    {
+        "id": "3",
+        "user_id": "3",
+        "username": "dalei",
+        "game_id": "4",
+        "game_title": "是",
+        "reason": "我......就是整个活......",
+        "evidence_files": [],
+        "status": "pending",
+        "admin_reason": null,
+        "created_at": "2025-10-05 18:16:46"
+    },
+    {
+        "id": "4",
+        "user_id": "3",
+        "username": "dalei",
+        "game_id": "7",
+        "game_title": "好玩的文件",
+        "reason": "system32的dll罢了",
+        "evidence_files": [],
+        "status": "rejected",
+        "admin_reason": "为啥要system32啊？",
+        "created_at": "2025-10-05 19:20:45"
+    }
+]

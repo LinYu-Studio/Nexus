@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ game.title }} - Nexus</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+/* ===== Game Detail Page - Win11 Fluent Style ===== */
+
+/* --- Hero / Gallery --- */
+.hero-section {
+  margin: -24px -32px 20px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0;
+}
+.hero-bg {
+  width: 100%; height: 320px;
+  background: linear-gradient(135deg, rgba(96,205,255,0.12), rgba(59,130,246,0.08));
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+}
+.hero-bg::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 80px;
+  background: linear-gradient(to top, var(--bg-layer), transparent);
+}
+.hero-placeholder {
+  font-size: 64px; color: var(--text-tertiary); opacity: 0.4;
+  user-select: none;
+}
+.hero-thumbs {
+  display: flex; gap: 8px; padding: 12px 32px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border-subtle);
+  overflow-x: auto;
+}
+.hero-thumb {
+  width: 160px; height: 90px; flex-shrink: 0;
+  border-radius: var(--radius-sm);
+  background: linear-gradient(135deg, rgba(96,205,255,0.08), rgba(59,130,246,0.05));
+  border: 1px solid var(--border-subtle);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--text-tertiary);
+  cursor: pointer; transition: border-color 0.15s;
+}
+.hero-thumb:hover { border-color: var(--accent); }
+.hero-thumb.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+
+/* --- Title bar area --- */
+.detail-header {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 20px; flex-wrap: wrap; gap: 16px;
+}
+.detail-title-area h1 {
+  font-size: 24px; font-weight: 600; margin: 0 0 8px;
+  color: var(--text-primary); letter-spacing: 0.3px;
+}
+.detail-subtitle {
+  font-size: 13px; color: var(--text-tertiary);
+  display: flex; gap: 12px; flex-wrap: wrap; align-items: center;
+}
+.detail-subtitle .sep { color: var(--border-subtle); }
+
+/* --- Action buttons (right of title) --- */
+.detail-actions-hero {
+  display: flex; gap: 8px; align-items: center; flex-shrink: 0;
+}
+.detail-actions-hero .btn { text-decoration: none; }
+.btn-download-main {
+  background: linear-gradient(135deg, #60cdff, #3b82f6);
+  color: #fff; border: none; padding: 10px 28px; border-radius: var(--radius-md);
+  font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  display: inline-flex; align-items: center; gap: 8px; text-decoration: none;
+}
+.btn-download-main:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(96,205,255,0.35); }
+.btn-download-main:active { transform: translateY(0); }
+
+/* --- Two-column layout --- */
+.detail-body {
+  display: grid; grid-template-columns: 1fr 280px; gap: 24px;
+}
+@media (max-width: 800px) {
+  .detail-body { grid-template-columns: 1fr; }
+  .hero-section { margin: -16px -16px 16px; }
+  .hero-bg { height: 200px; }
+  .hero-thumbs { padding: 8px 16px; }
+  .hero-thumb { width: 120px; height: 68px; }
+}
+
+/* --- Left column sections --- */
+.detail-left { min-width: 0; }
+.detail-section {
+  margin-bottom: 20px;
+}
+.detail-section h2 {
+  font-size: 16px; font-weight: 600; margin: 0 0 12px;
+  color: var(--text-primary); padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* About/Description */
+.about-card {
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg); padding: 20px;
+  backdrop-filter: blur(20px) saturate(1.35);
+  -webkit-backdrop-filter: blur(20px) saturate(1.35);
+}
+.about-card p {
+  font-size: 14px; color: var(--text-secondary); line-height: 1.8;
+  margin: 0; white-space: pre-wrap;
+}
+.about-card .tag-row {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-top: 14px;
+  padding-top: 14px; border-top: 1px solid var(--border-subtle);
+}
+
+/* System Requirements */
+.specs-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+}
+.specs-card {
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md); padding: 16px;
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+}
+.specs-card h4 {
+  font-size: 12px; font-weight: 600; margin: 0 0 10px;
+  color: var(--accent); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.specs-card ul { list-style: none; margin: 0; padding: 0; }
+.specs-card li {
+  font-size: 12px; color: var(--text-secondary); padding: 3px 0;
+  display: flex; gap: 6px;
+}
+.specs-card li .label { color: var(--text-tertiary); min-width: 60px; flex-shrink: 0; }
+
+/* DLC Section */
+.dlc-list { display: flex; flex-direction: column; gap: 8px; }
+.dlc-item-card {
+  display: flex; justify-content: space-between; align-items: center;
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md); padding: 12px 16px;
+  backdrop-filter: blur(12px) saturate(1.2);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  transition: border-color 0.15s;
+}
+.dlc-item-card:hover { border-color: var(--accent); }
+.dlc-item-card .dlc-info h4 { font-size: 13px; margin: 0 0 2px; color: var(--text-primary); }
+.dlc-item-card .dlc-info p { font-size: 12px; margin: 0; color: var(--text-tertiary); }
+.dlc-item-card .dlc-action { flex-shrink: 0; }
+
+/* --- Right column sidebar --- */
+.detail-sidebar { display: flex; flex-direction: column; gap: 12px; }
+.sidebar-card {
+  background: var(--bg-card); border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg); padding: 16px;
+  backdrop-filter: blur(20px) saturate(1.35);
+  -webkit-backdrop-filter: blur(20px) saturate(1.35);
+}
+.sidebar-card h4 {
+  font-size: 11px; font-weight: 600; margin: 0 0 10px;
+  color: var(--text-tertiary); text-transform: uppercase; letter-spacing: 0.5px;
+}
+.sidebar-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 0; font-size: 13px;
+}
+.sidebar-row .s-label { color: var(--text-tertiary); }
+.sidebar-row .s-value { color: var(--text-primary); text-align: right; font-weight: 500; }
+
+/* --- Review / security badges in sidebar --- */
+.status-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 11px; padding: 2px 8px; border-radius: 4px;
+  font-weight: 500;
+}
+.status-badge.pending { background: rgba(245,158,11,0.12); color: #f59e0b; }
+.status-badge.passed { background: rgba(34,197,94,0.12); color: #22c55e; }
+.status-badge.risk { background: rgba(239,68,68,0.12); color: #ef4444; }
+.status-badge.official { background: rgba(96,205,255,0.12); color: #60cdff; }
+</style>
+</head>
+<body>
+<div class="mica" aria-hidden="true"></div>
+<div class="mica-noise" aria-hidden="true"></div>
+
+<div class="title-bar acrylic">
+  <span class="title-text">Nexus</span>
+</div>
+
+<div class="main-layout">
+  <div class="sidebar sidebar-acrylic">
+    <div class="nav-section">
+      <div class="nav-label">游戏</div>
+      <a href="/" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg><span>游戏库</span></a>
+      <a href="/upload" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg><span>上传游戏</span></a>
+      <a href="/my_games" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span>我的游戏</span></a>
+      <a href="/my_projects" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg><span>我的项目</span></a>
+      {% if current_user.is_developer %}<a href="/developer" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg><span>开发者平台</span></a>{% endif %}
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">社交</div>
+      <a href="/mailbox" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><span>邮箱</span></a>
+      <a href="/search_users" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><span>搜索用户</span></a>
+      <a href="/appeals" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg><span>申诉</span></a>
+    </div>
+    {% if current_user and current_user.is_admin %}
+    <div class="nav-section">
+      <div class="nav-label">管理</div>
+      <a href="/admin/users" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg><span>用户管理</span></a>
+      <a href="/admin/projects" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg><span>项目管理</span></a>
+      <a href="/admin/appeals" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>申诉管理</span></a>
+      <a href="/admin/price_requests" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg><span>收费申请</span></a>
+      <a href="/admin/recharge" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg><span>用户充值</span></a>
+      <a href="/admin/developer_applications" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg><span>开发者申请</span></a>
+      <a href="/admin/review_uploads" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span>原创作品审核</span></a>
+    </div>
+    {% endif %}
+    {% if current_user %}
+    <div class="nav-user">
+      <div class="nav-user-avatar">{{ current_user.username[:1].upper() }}</div>
+      <span>{{ current_user.username }}{% if current_user.is_admin %} (管理员){% endif %}</span>
+      <a href="/logout" class="logout-btn">退出</a>
+    </div>
+    {% else %}
+    <div class="nav-user" style="cursor:default;">
+      <div class="nav-user-avatar">?</div>
+      <span>未登录</span>
+      <div style="margin-left:auto;display:flex;gap:4px;">
+        <a href="/login" class="logout-btn" style="font-size:11px;color:var(--text-tertiary);padding:4px 8px;border-radius:var(--radius-sm);text-decoration:none;">登录</a>
+        <a href="/register" class="logout-btn" style="font-size:11px;color:var(--text-tertiary);padding:4px 8px;border-radius:var(--radius-sm);text-decoration:none;">注册</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="content acrylic-layer">
+    <div class="message-section">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}{% endif %}
+      {% endwith %}
+    </div>
+
+    <!-- ====== Hero / Media Gallery ====== -->
+    <div class="hero-section">
+      <div class="hero-bg">
+        <div class="hero-placeholder">🎮</div>
+      </div>
+      <div class="hero-thumbs">
+        <div class="hero-thumb active">截图 1</div>
+        <div class="hero-thumb">截图 2</div>
+        <div class="hero-thumb">截图 3</div>
+        <div class="hero-thumb">截图 4</div>
+        <div class="hero-thumb">截图 5</div>
+      </div>
+    </div>
+
+    <!-- ====== Title + Actions ====== -->
+    <div class="detail-header">
+      <div class="detail-title-area">
+        <div class="origin-badge" style="margin:0 0 8px;">
+          {% if game.origin == 'original' %}<span class="badge badge-original"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>原创</span>{% endif %}
+          {% if game.release_status == 'coming_soon' %}<span class="badge badge-coming"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>计划发行</span>{% endif %}
+        </div>
+        <h1>{{ game.title }}</h1>
+        <div class="detail-subtitle">
+          {% if game.publisher %}<span>{{ game.publisher }}</span><span class="sep">·</span>{% endif %}
+          {% if game.distributor %}<span>发行: {{ game.distributor }}</span><span class="sep">·</span>{% endif %}
+          <span>作者: {{ game.author }}</span>
+          {% if game.release_date %}<span class="sep">·</span><span>发行: {{ game.release_date }}</span>{% endif %}
+          {% if game.upload_time %}<span class="sep">·</span><span>上架: {{ game.upload_time[:10] }}</span>{% endif %}
+        </div>
+      </div>
+
+      <div class="detail-actions-hero">
+        {% if game.release_status == 'coming_soon' %}
+        <span class="btn btn-ghost" style="cursor:default;opacity:0.6;padding:10px 20px;">即将于 {{ game.release_date }} 发布</span>
+        {% elif game.price and game.price > 0 %}
+        <button class="btn-download-main" onclick="showPurchaseConfirmPopup('{{ game.id }}','{{ game.title }}',{{ game.price }})">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          {{ '下载' if current_user and 'purchased_games' in current_user and game.id in current_user.purchased_games else '购买' }} · ¥{{ "%.2f"|format(game.price) }}
+        </button>
+        {% else %}
+        <a href="/download/{{ game.id }}" class="btn-download-main">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          免费下载
+        </a>
+        {% endif %}
+        {% if game.is_folder %}<a href="/browse/{{ game.id }}" class="btn btn-ghost" style="font-size:13px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg> 浏览文件</a>{% endif %}
+      </div>
+    </div>
+
+    <!-- ====== Two-Column Body ====== -->
+    <div class="detail-body">
+
+      <!-- ===== LEFT COLUMN ===== -->
+      <div class="detail-left">
+
+        <!-- About -->
+        <div class="detail-section">
+          <h2>关于这款游戏</h2>
+          <div class="about-card">
+            <p>{{ game.description }}</p>
+            {% if game.tags and game.tags|length > 0 %}
+            <div class="tag-row">
+              {% for tag in game.tags %}<span class="tag">{{ tag }}</span>{% endfor %}
+            </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- System Requirements -->
+        <div class="detail-section">
+          <h2>系统需求</h2>
+          <div class="specs-grid">
+            <div class="specs-card">
+              <h4>最低配置</h4>
+              <ul>
+                <li><span class="label">系统</span>{{ game.min_specs.get('os') or 'Windows 10 (64 bit)' }}</li>
+                <li><span class="label">处理器</span>{{ game.min_specs.get('cpu') or 'Intel i5 2500K / AMD Ryzen 1300X' }}</li>
+                <li><span class="label">内存</span>{{ game.min_specs.get('ram') or '4 GB' }}</li>
+                <li><span class="label">显卡</span>{{ game.min_specs.get('gpu') or 'GTX 900 / RX 400 / Intel HD 500' }}</li>
+                <li><span class="label">存储</span>{{ game.min_specs.get('storage') or '600 MB' }}</li>
+                {% if game.min_specs.get('dx') %}<li><span class="label">DirectX</span>{{ game.min_specs.get('dx') }}</li>{% endif %}
+              </ul>
+            </div>
+            <div class="specs-card">
+              <h4>推荐配置</h4>
+              <ul>
+                <li><span class="label">系统</span>{{ game.rec_specs.get('os') or 'Windows 11 (64 bit)' }}</li>
+                <li><span class="label">处理器</span>{{ game.rec_specs.get('cpu') or 'Intel i7 8700K / AMD Ryzen 1600X' }}</li>
+                <li><span class="label">内存</span>{{ game.rec_specs.get('ram') or '8 GB' }}</li>
+                <li><span class="label">显卡</span>{{ game.rec_specs.get('gpu') or 'GTX 10 系列 / RX 5000 系列' }}</li>
+                <li><span class="label">存储</span>{{ game.rec_specs.get('storage') or '600 MB' }}</li>
+                {% if game.rec_specs.get('dx') %}<li><span class="label">DirectX</span>{{ game.rec_specs.get('dx') }}</li>{% endif %}
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- DLC Section -->
+        {% set game_dlcs = dlcs|selectattr('game_id', 'equalto', game.id)|list if dlcs is defined else [] %}
+        {% if game_dlcs %}
+        <div class="detail-section">
+          <h2>内容扩展 / DLC <span style="font-size:12px;font-weight:400;color:var(--text-tertiary);">({{ game_dlcs|length }})</span></h2>
+          <div class="dlc-list">
+            {% for dlc in game_dlcs %}
+            <div class="dlc-item-card">
+              <div class="dlc-info">
+                <h4>{{ dlc.title }}</h4>
+                <p>{{ dlc.description or '暂无描述' }}</p>
+              </div>
+              <div class="dlc-action">
+                {% if dlc.price and dlc.price > 0 %}
+                <a href="/download/dlc/{{ dlc.id }}" class="btn btn-accent btn-sm" style="text-decoration:none;white-space:nowrap;">¥{{ "%.2f"|format(dlc.price) }}</a>
+                {% else %}
+                <a href="/download/dlc/{{ dlc.id }}" class="btn btn-ghost btn-sm" style="text-decoration:none;white-space:nowrap;">免费</a>
+                {% endif %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+      </div>
+
+      <!-- ===== RIGHT SIDEBAR ===== -->
+      <div class="detail-sidebar">
+        <div class="sidebar-card">
+          <h4>基本信息</h4>
+          <div class="sidebar-row">
+            <span class="s-label">开发商</span>
+            <span class="s-value">{{ game.publisher or game.author }}</span>
+          </div>
+          <div class="sidebar-row">
+            <span class="s-label">发行商</span>
+            <span class="s-value">{{ game.distributor or game.author }}</span>
+          </div>
+          <div class="sidebar-row">
+            <span class="s-label">发行日期</span>
+            <span class="s-value">{{ game.release_date or game.upload_time[:10] }}</span>
+          </div>
+          <div class="sidebar-row">
+            <span class="s-label">文件大小</span>
+            <span class="s-value">{{ game.file_size }}</span>
+          </div>
+          <div class="sidebar-row">
+            <span class="s-label">下载次数</span>
+            <span class="s-value">{{ game.downloads }}</span>
+          </div>
+          <div class="sidebar-row">
+            <span class="s-label">浏览次数</span>
+            <span class="s-value">{{ game.views }}</span>
+          </div>
+          <div class="sidebar-row">
+            <span class="s-label">价格</span>
+            <span class="s-value">{% if game.price and game.price > 0 %}¥{{ "%.2f"|format(game.price) }}{% else %}免费{% endif %}</span>
+          </div>
+        </div>
+
+        <div class="sidebar-card">
+          <h4>状态</h4>
+          {% if game.origin == 'original' and game.review_status %}
+          <div class="sidebar-row">
+            <span class="s-label">审核</span>
+            <span class="s-value">
+              {% if game.review_status == 'pending_review' %}<span class="status-badge pending">等待审核</span>
+              {% elif game.review_status in ('approved','auto_approved') %}<span class="status-badge passed">已通过</span>
+              {% elif game.review_status == 'rejected' %}<span class="status-badge risk">已拒绝</span>{% endif %}
+            </span>
+          </div>
+          {% endif %}
+          {% if game.security_status %}
+          <div class="sidebar-row">
+            <span class="s-label">安全</span>
+            <span class="s-value">
+              {% if game.security_status == 'official' %}<span class="status-badge official">官方验证</span>
+              {% elif game.security_status == 'passed' %}<span class="status-badge passed">已通过</span>
+              {% elif game.security_status == 'pending' %}<span class="status-badge pending">检测中</span>
+              {% elif game.security_status == 'risk' %}<span class="status-badge risk">存在风险</span>{% endif %}
+            </span>
+          </div>
+          {% endif %}
+          {% if game.is_banned %}
+          <div class="sidebar-row">
+            <span class="s-label">封禁</span>
+            <span class="s-value"><span class="status-badge risk">已封禁</span></span>
+          </div>
+          {% endif %}
+        </div>
+
+        {% if developer and developer.get('developer_name') %}
+        <div class="sidebar-card">
+          <h4>开发者</h4>
+          <div style="text-align:center;padding:8px 0;">
+            <div style="width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#60cdff,#3b82f6);display:flex;align-items:center;justify-content:center;margin:0 auto 8px;color:#fff;font-size:18px;font-weight:600;">{{ developer.developer_name[:1] }}</div>
+            <div style="font-size:14px;font-weight:500;color:var(--text-primary);">{{ developer.developer_name }}</div>
+            <div style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">@{{ game.username }}</div>
+          </div>
+        </div>
+        {% endif %}
+
+        {% if current_user and (current_user.is_admin or current_user.id == game.user_id) %}
+        <div class="sidebar-card">
+          <h4>管理</h4>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            {% if current_user.is_admin and game.origin == 'original' %}
+            <form action="/admin/project/unmark_original/{{ game.id }}" method="POST" style="display:inline;">
+              <button type="submit" class="btn btn-ghost btn-sm" style="width:100%;border:none;cursor:pointer;" onclick="return confirm('确定撤销原创标记？')">撤销原创</button>
+            </form>
+            {% endif %}
+            <a href="/delete/{{ game.id }}" class="btn btn-danger btn-sm" style="text-align:center;text-decoration:none;display:block;" onclick="return confirm('确定删除？')">删除项目</a>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+    </div><!-- /detail-body -->
+
+    <div style="margin-top:24px;padding-top:16px;border-top:1px solid var(--border-subtle);font-size:12px;color:var(--text-tertiary);">
+      <a href="/" style="color:var(--accent);text-decoration:none;">← 返回游戏库</a>
+      <span style="margin:0 8px;">·</span>
+      <span>游戏 ID: {{ game.id }}</span>
+      <span style="margin:0 8px;">·</span>
+      <span>发布者: {{ game.username or '未知' }}</span>
+      {% if game.version %}<span style="margin:0 8px;">·</span><span>版本: {{ game.version }}</span>{% endif %}
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main-layout -->
+
+<!-- ===== Purchase Modal ===== -->
+<div class="modal" id="purchaseConfirmPopup" style="display:none;">
+  <div class="modal-content" style="max-width:400px;">
+    <div class="modal-header">
+      <h3 id="purchaseGameTitle">确认购买</h3>
+      <button class="close-btn" onclick="closePurchasePopup()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p id="purchaseGameInfo" style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;"></p>
+      <div style="text-align:center;margin-bottom:16px;">
+        <img src="/支付宝收款.jpg" alt="支付宝收款码" style="max-width:200px;border-radius:var(--radius-md);border:1px solid var(--border-subtle);">
+        <p style="font-size:12px;color:var(--text-tertiary);margin-top:8px;">请使用支付宝扫码付款</p>
+      </div>
+      <div class="form-group">
+        <label for="purchaseNote">付款备注（选填）</label>
+        <input type="text" id="purchaseNote" placeholder="可填写游戏名以便核对">
+      </div>
+      <input type="hidden" id="purchaseGameId" value="">
+    </div>
+    <div class="modal-footer">
+      <button class="btn cancel-btn" onclick="closePurchasePopup()">取消</button>
+      <button class="btn btn-accent" onclick="purchaseGame()">我已付款</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let gid = '';
+function showPurchaseConfirmPopup(gameId, gameTitle, gamePrice) {
+  gid = gameId;
+  document.getElementById('purchaseGameTitle').textContent = '购买 ' + gameTitle;
+  document.getElementById('purchaseGameId').value = gameId;
+  document.getElementById('purchaseGameInfo').textContent = '游戏: ' + gameTitle + ' | 价格: ¥' + gamePrice.toFixed(2);
+  document.getElementById('purchaseConfirmPopup').style.display = 'flex';
+}
+function closePurchasePopup() {
+  document.getElementById('purchaseConfirmPopup').style.display = 'none';
+}
+function purchaseGame() {
+  const gameId = document.getElementById('purchaseGameId').value;
+  const note = document.getElementById('purchaseNote').value;
+  fetch('/api/game/purchase', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({game_id: gameId, note: note})
+  }).then(r => r.json()).then(data => {
+    if (data.success) {
+      alert('购买成功！');
+      location.reload();
+    } else {
+      alert(data.message || '购买失败');
+    }
+  }).catch(e => alert('网络错误'));
+}
+(function(){const h=new Date().getHours();document.documentElement.setAttribute('data-theme',(h>=6&&h<18)?'light':'dark');const s=localStorage.getItem('lvmotheme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s);})();
+</script>
+</body>
+</html>

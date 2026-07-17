@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>我的游戏 - Nexus</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="mica" aria-hidden="true"></div>
+<div class="mica-noise" aria-hidden="true"></div>
+
+<div class="title-bar acrylic">
+  <span class="title-text">Nexus</span>
+</div>
+
+<div class="main-layout">
+  <div class="sidebar sidebar-acrylic">
+    <div class="nav-section">
+      <div class="nav-label">游戏</div>
+      <a href="/" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg><span>游戏库</span></a>
+      <a href="/upload" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg><span>上传游戏</span></a>
+      <a href="/my_games" class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span>我的游戏</span></a>
+      <a href="/my_projects" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg><span>我的项目</span></a>
+      {% if current_user.is_developer %}<a href="/developer" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg><span>开发者平台</span></a>{% endif %}
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">社交</div>
+      <a href="/mailbox" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><span>邮箱</span></a>
+      <a href="/search_users" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><span>搜索用户</span></a>
+      <a href="/appeals" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg><span>申诉</span></a>
+    </div>
+    {% if current_user and current_user.is_admin %}
+    <div class="nav-section">
+      <div class="nav-label">管理</div>
+      <a href="/admin/users" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg><span>用户管理</span></a>
+      <a href="/admin/projects" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg><span>项目管理</span></a>
+      <a href="/admin/appeals" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>申诉管理</span></a>
+      <a href="/admin/price_requests" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg><span>收费申请</span></a>
+      <a href="/admin/recharge" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg><span>用户充值</span></a>
+    </div>
+    {% endif %}
+    {% if current_user %}
+    <div class="nav-user">
+      <div class="nav-user-avatar">{{ current_user.username[:1].upper() }}</div>
+      <span>{{ current_user.username }}{% if current_user.is_admin %} (管理员){% endif %}</span>
+      <a href="/logout" class="logout-btn">退出</a>
+    </div>
+    {% else %}
+    <div class="nav-user" style="cursor:default;">
+      <div class="nav-user-avatar">?</div>
+      <span>未登录</span>
+      <div style="margin-left:auto;display:flex;gap:4px;">
+        <a href="/login" class="logout-btn" style="font-size:11px;color:var(--text-tertiary);padding:4px 8px;border-radius:var(--radius-sm);text-decoration:none;">登录</a>
+        <a href="/register" class="logout-btn" style="font-size:11px;color:var(--text-tertiary);padding:4px 8px;border-radius:var(--radius-sm);text-decoration:none;">注册</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="content acrylic-layer">
+    <div class="message-section">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="message">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    <div class="page-header">
+      <h1>我的游戏</h1>
+      {% if current_user %}
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div class="wallet-container">
+          <span class="wallet-balance" id="wallet-balance">Nexus钱包余额 ¥0.00</span>
+          <div class="wallet-dropdown" id="wallet-dropdown">
+            <div class="wallet-option" id="recharge-item">为您的Nexus钱包充值</div>
+            <div class="wallet-option" id="customer-service-item">Nexus客服</div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+
+    <p style="font-size:13px;color:var(--text-tertiary);margin-bottom:16px;">这里是您已经购买的游戏，您可以随时下载和游玩。</p>
+
+    {% if games|length > 0 %}
+    <div class="games-container">
+      {% for game in games %}
+      <div class="game-card">
+        <div style="display:flex;gap:12px;align-items:flex-start;">
+          <div style="width:64px;height:64px;border-radius:var(--radius-md);overflow:hidden;flex-shrink:0;background:var(--bg-card);display:flex;align-items:center;justify-content:center;">
+            {% if game.cover_url %}
+            <img src="{{ game.cover_url }}" alt="{{ game.title }}" style="width:100%;height:100%;object-fit:cover;">
+            {% else %}
+            <span style="font-size:20px;font-weight:700;color:var(--text-tertiary);">{{ game.title[:2] }}</span>
+            {% endif %}
+          </div>
+          <div>
+            <h3>{{ game.title }}</h3>
+            <div class="author">作者: {{ game.author }}</div>
+            <div class="game-meta">
+              <span>大小: {{ game.file_size }}</span>
+              <span>下载次数: {{ game.downloads }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="game-actions" style="margin-top:12px;">
+          <a href="/download/{{ game.id }}" class="btn download-btn">下载游戏</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="no-games">
+      <p>您还没有购买任何游戏。</p>
+      <div style="margin-top:12px;"><a href="/" class="btn btn-accent">浏览游戏</a></div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- 支付方式选择弹窗 -->
+<div class="modal" id="payment-modal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>选择支付方式</h3>
+      <button class="close-btn" onclick="closePaymentModal()" style="background:none;border:none;font-size:22px;color:var(--text-tertiary);cursor:pointer;line-height:1;">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="payment-methods" style="padding:0;">
+        <div class="payment-method" id="alipay-option">
+          <svg width="24" height="24" viewBox="0 0 100 100" fill="#1677FF"><path d="M50 5C25.1 5 5 25.1 5 50s20.1 45 45 45 45-20.1 45-45S74.9 5 50 5zm0 80C28.9 85 15 71.1 15 50S28.9 15 50 15s35 13.9 35 35-13.9 35-35 35z"/><path d="M73.8 46.5c-1-4.3-4-7.5-8.5-7.5H56v24.2h7.3c4.5 0 7.7-3.1 8.5-7.4l4.5-20.6c.2-.8.2-1.4.2-2.1 0-1.7-1.4-3.1-3.1-3.1h-11v-6h10.3c2.7 0 4.9 1.4 4.9 3.1 0 .9-.3 1.7-.9 2.4l-4.5 20.4zM44 46.5c-1-4.3-4-7.5-8.5-7.5H31v24.2h7.3c4.5 0 7.7-3.1 8.5-7.4l4.5-20.6c.2-.8.2-1.4.2-2.1 0-1.7-1.4-3.1-3.1-3.1h-11v-6h10.3c2.7 0 4.9 1.4 4.9 3.1 0 .9-.3 1.7-.9 2.4l-4.5 20.4z"/></svg>
+          <span>支付宝</span>
+        </div>
+        <div class="payment-method" id="wechat-option">
+          <svg width="24" height="24" viewBox="0 0 100 100" fill="#07C160"><path d="M79.7 22.8c-.1 0-.3 0-.4.1l-22.5 8.8c-2.4.9-5 1.4-7.6 1.4-2.6 0-5.1-.5-7.5-1.4L20.7 22.9c-.2-.1-.4-.1-.5-.1s-.3 0-.4.1c-.4.1-.6.5-.5.9l5 16.9c.3 1.1.5 2.2.5 3.4 0 2.3-.8 4.5-2.3 6.3l-5.2 17c-.2.6 0 1.2.5 1.6.5.4 1.2.5 1.8.3l22.7-8.9c2.3-.9 4.9-1.4 7.5-1.4 2.6 0 5.1.5 7.5 1.4l22.7 8.9c.6.2 1.3.1 1.8-.3.5-.4.7-1 .5-1.6l-5.2-17c-1.5-1.8-2.3-4-2.3-6.3 0-1.2.2-2.3.5-3.4l5-16.9c.1-.4-.1-.8-.5-.9zM64.8 53.4c-2.3 2.7-6.6 2.4-8.8.2-2.3-2.3-2.5-6.8.2-9 2.2-2.2 6.5-2.5 8.8-.2 2.3 2.2 2.5 6.7.2 9z"/></svg>
+          <span>微信</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 支付二维码弹窗 -->
+<div class="modal" id="qrcode-modal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="qrcode-title">支付宝收款</h3>
+      <button class="close-btn" onclick="closeQrcodeModal()" style="background:none;border:none;font-size:22px;color:var(--text-tertiary);cursor:pointer;line-height:1;">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="qr-code-container" style="padding:0;text-align:center;">
+        <img id="qrcode-image" src="" alt="收款二维码" class="payment-qr-code">
+        <p class="payment-note">选择充值方式后将跳转到支付页面</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 通知 -->
+<div class="notification" id="notification" style="display:none;position:fixed;bottom:20px;right:20px;z-index:10000;padding:12px 20px;border-radius:var(--radius-md);background:var(--bg-card);backdrop-filter:blur(20px);border:1px solid var(--border-subtle);box-shadow:var(--shadow-md);">
+  <div id="notification-content" style="font-size:13px;color:var(--text-primary);"></div>
+</div>
+
+<script>
+(function(){const h=new Date().getHours();document.documentElement.setAttribute('data-theme',(h>=6&&h<18)?'light':'dark');const s=localStorage.getItem('lvmotheme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s);})();
+
+// 钱包下拉菜单
+const walletBalance = document.getElementById('wallet-balance');
+const walletDropdown = document.getElementById('wallet-dropdown');
+const rechargeItem = document.getElementById('recharge-item');
+const customerServiceItem = document.getElementById('customer-service-item');
+const paymentModal = document.getElementById('payment-modal');
+const qrcodeModal = document.getElementById('qrcode-modal');
+const qrcodeTitle = document.getElementById('qrcode-title');
+const qrcodeImage = document.getElementById('qrcode-image');
+const alipayOption = document.getElementById('alipay-option');
+const wechatOption = document.getElementById('wechat-option');
+const notification = document.getElementById('notification');
+const notificationContent = document.getElementById('notification-content');
+
+walletBalance.addEventListener('click', function(e) {
+  e.stopPropagation();
+  walletDropdown.style.display = walletDropdown.style.display === 'block' ? 'none' : 'block';
+});
+document.addEventListener('click', function() { walletDropdown.style.display = 'none'; });
+walletDropdown.addEventListener('click', function(e) { e.stopPropagation(); });
+rechargeItem.addEventListener('click', function() {
+  walletDropdown.style.display = 'none';
+  paymentModal.style.display = 'flex';
+});
+customerServiceItem.addEventListener('click', function() {
+  walletDropdown.style.display = 'none';
+  window.location.href = '/mailbox';
+});
+alipayOption.addEventListener('click', function() {
+  paymentModal.style.display = 'none';
+  startPayment('alipay');
+});
+wechatOption.addEventListener('click', function() {
+  paymentModal.style.display = 'none';
+  startPayment('wechat');
+});
+function startPayment(paymentType) {
+  const amount = prompt('请输入充值金额（元）：');
+  if (!amount) return;
+  const amt = parseFloat(amount);
+  if (isNaN(amt) || amt <= 0) { showNotification('请输入有效金额'); return; }
+  if (amt > 10000) { showNotification('单次不能超过10000元'); return; }
+  
+  showNotification('正在创建订单...');
+  fetch('/api/payment/create', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({type: paymentType, amount: amt})
+  }).then(r => r.json()).then(data => {
+    if (data.success) {
+      // 跳转到支付页面
+      showNotification('正在跳转到支付页面...');
+      window.open(data.pay_url, '_blank');
+      // 轮询查询支付结果
+      pollPayment(data.out_trade_no);
+    } else {
+      showNotification(data.message || '下单失败');
+    }
+  }).catch(e => showNotification('网络错误'));
+}
+function pollPayment(outTradeNo) {
+  const check = setInterval(function() {
+    fetch('/api/payment/query?out_trade_no=' + outTradeNo)
+      .then(r => r.json()).then(data => {
+        if (data.success && data.status === 'success') {
+          clearInterval(check);
+          showNotification('充值成功！¥' + data.amount.toFixed(2) + ' 已到账');
+          // 刷新余额
+          getUserWalletBalance();
+        }
+      }).catch(function(){});
+  }, 3000);
+  // 5分钟后停止轮询
+  setTimeout(function() { clearInterval(check); }, 300000);
+}
+function showNotification(message) {
+  notificationContent.textContent = message;
+  notification.style.display = 'block';
+  setTimeout(() => { notification.style.display = 'none'; }, 3000);
+}
+window.addEventListener('click', function(event) {
+  if (event.target === paymentModal) paymentModal.style.display = 'none';
+  else if (event.target === qrcodeModal) closeQrcodeModal();
+});
+function getUserWalletBalance() {
+  fetch('/api/user/wallet/balance')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) walletBalance.textContent = 'Nexus钱包余额 ¥' + data.balance.toFixed(2);
+    }).catch(() => {});
+}
+document.addEventListener('DOMContentLoaded', function() { getUserWalletBalance(); });
+</script>
+</body>
+</html>

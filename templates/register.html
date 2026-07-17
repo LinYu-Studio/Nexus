@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>注册 - Nexus</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="mica" aria-hidden="true"></div>
+<div class="mica-noise" aria-hidden="true"></div>
+
+<div class="title-bar acrylic">
+  <span class="title-text">Nexus</span>
+</div>
+
+<div style="position:relative;z-index:2;display:flex;align-items:center;justify-content:center;height:calc(100vh - 48px);padding:20px;">
+  <div class="auth-box" style="position:static;">
+    <h1>注册</h1>
+    <p class="sub">创建新账号，注册需管理员审批</p>
+    <div class="err" id="regError">
+      {% with messages = get_flashed_messages() %}
+        {% for message in messages %}{{ message }}{% endfor %}
+      {% endwith %}
+    </div>
+    <form method="post" action="/register">
+      <input type="text" name="username" placeholder="账户名" required>
+      <input type="email" name="email" placeholder="邮箱" required>
+      <input type="password" name="password" placeholder="密码" required>
+      <input type="password" name="confirm_password" placeholder="确认密码" required>
+      <button type="submit" class="btn btn-accent" style="margin-top:8px">注册</button>
+    </form>
+    <div class="switch">已有账号？<a href="/login">登录</a></div>
+  </div>
+</div>
+
+<script>
+(function() {
+  const h = new Date().getHours();
+  const theme = (h >= 6 && h < 18) ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+})();
+</script>
+</body>
+</html>

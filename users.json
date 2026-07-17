@@ -1,0 +1,37 @@
+[
+    {
+        "id": "1",
+        "username": "admin",
+        "email": "admin@example.com",
+        "password": "$2b$12$MxCT15o0AhEEpDlDDRrjHuYifOpfYJxFmlYcrYHdHW62FiSHc2lqO",
+        "is_admin": true,
+        "status": "approved",
+        "wallet_balance": 0.0,
+        "purchased_games": [],
+        "is_developer": false,
+        "developer_name": null,
+        "developer_application": null
+    },
+    {
+        "id": "4",
+        "username": "FGPLAY",
+        "email": "496090691@qq.com",
+        "password": "$2b$12$EDpvV7/TnB9qehcjZyBhwuuoFMRz.rEOMte9RnfSHwkkJsT.Ko9NW",
+        "is_admin": false,
+        "status": "approved",
+        "created_at": "2025-10-05 18:19:05",
+        "wallet_balance": 0.0,
+        "purchased_games": [],
+        "is_developer": true,
+        "developer_name": "LinYu Studio",
+        "developer_application": {
+            "developer_name": "LinYu Studio",
+            "reason": "aaa",
+            "status": "approved",
+            "applied_at": "2026-06-06 03:17:57",
+            "reviewed_by": "admin",
+            "reviewed_at": "2026-06-06 03:18:41",
+            "review_reason": null
+        }
+    }
+]

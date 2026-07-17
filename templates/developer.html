@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开发者平台 - Nexus</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.dev-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px; margin-top: 20px;
+}
+.dev-card {
+  background: var(--accent-glass); border-radius: var(--radius-lg);
+  padding: 24px; border: 1px solid var(--border-glass);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  transition: transform .2s, box-shadow .2s;
+}
+.dev-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,.15);
+}
+.dev-card-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px; font-size: 20px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+  color: #fff;
+}
+.dev-card h3 { font-size: 16px; margin: 0 0 8px; color: var(--text-primary); }
+.dev-card p { font-size: 13px; color: var(--text-secondary); margin: 0 0 16px; line-height: 1.5; }
+.dev-card .btn { font-size: 13px; padding: 6px 14px; }
+.stats-row {
+  display: flex; gap: 16px; flex-wrap: wrap; margin-top: 16px;
+}
+.stat-box {
+  flex: 1; min-width: 140px; background: var(--accent-glass);
+  border-radius: var(--radius-md); padding: 16px 20px;
+  border: 1px solid var(--border-glass);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+}
+.stat-box .stat-value { font-size: 28px; font-weight: 600; color: var(--accent); }
+.stat-box .stat-label { font-size: 12px; color: var(--text-tertiary); margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class="mica" aria-hidden="true"></div>
+<div class="mica-noise" aria-hidden="true"></div>
+
+<div class="title-bar acrylic">
+  <span class="title-text">Nexus</span>
+</div>
+
+<div class="main-layout">
+  <div class="sidebar sidebar-acrylic">
+    <div class="nav-section">
+      <div class="nav-label">游戏</div>
+      <a href="/" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg><span>游戏库</span></a>
+      <a href="/upload" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg><span>上传游戏</span></a>
+      <a href="/my_games" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span>我的游戏</span></a>
+      <a href="/my_projects" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg><span>我的项目</span></a>
+      {% if current_user.is_developer %}<a href="/developer" class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg><span>开发者平台</span></a>{% endif %}
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">社交</div>
+      <a href="/mailbox" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><span>邮箱</span></a>
+      <a href="/search_users" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><span>搜索用户</span></a>
+      <a href="/appeals" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg><span>申诉</span></a>
+    </div>
+    {% if current_user and current_user.is_admin %}
+    <div class="nav-section">
+      <div class="nav-label">管理</div>
+      <a href="/admin/users" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg><span>用户管理</span></a>
+      <a href="/admin/projects" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg><span>项目管理</span></a>
+      <a href="/admin/appeals" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>申诉管理</span></a>
+      <a href="/admin/price_requests" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg><span>收费申请</span></a>
+      <a href="/admin/recharge" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg><span>用户充值</span></a>
+    </div>
+    {% endif %}
+    {% if current_user %}
+    <div class="nav-user">
+      <div class="nav-user-avatar">{{ current_user.username[:1].upper() }}</div>
+      <span>{{ current_user.username }}{% if current_user.is_admin %} (管理员){% endif %}</span>
+      <a href="/logout" class="logout-btn">退出</a>
+    </div>
+    {% else %}
+    <div class="nav-user" style="cursor:default;">
+      <div class="nav-user-avatar">?</div>
+      <span>未登录</span>
+      <div style="margin-left:auto;display:flex;gap:4px;">
+        <a href="/login" class="logout-btn" style="font-size:11px;color:var(--text-tertiary);padding:4px 8px;border-radius:var(--radius-sm);text-decoration:none;">登录</a>
+        <a href="/register" class="logout-btn" style="font-size:11px;color:var(--text-tertiary);padding:4px 8px;border-radius:var(--radius-sm);text-decoration:none;">注册</a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+  <div class="content acrylic-layer">
+    <div class="message-section">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          {% for message in messages %}
+            <div class="message">{{ message }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+
+    <div class="page-header">
+      <h1>开发者平台</h1>
+      <div style="display:flex;align-items:center;gap:12px;font-size:13px;color:var(--text-secondary);">
+        <span>{{ current_user.username }}</span>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      {% set orig_games = games|selectattr('origin', 'equalto', 'original')|selectattr('user_id', 'equalto', current_user.id)|list %}
+      {% set total_dls = orig_games|sum(attribute='downloads') %}
+      <div class="stat-box">
+        <div class="stat-value">{{ orig_games|length }}</div>
+        <div class="stat-label">原创作品</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">{{ total_dls }}</div>
+        <div class="stat-label">总下载量</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">{{ "%.2f"|format((total_dls // 10) * 0.01) }}</div>
+        <div class="stat-label">总收入 (¥)</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value">0</div>
+        <div class="stat-label">API 调用次数</div>
+      </div>
+    </div>
+
+    <div class="dev-grid">
+      <div class="dev-card" onclick="location.href='/developer/upload'" style="cursor:pointer;border-color:var(--accent);">
+        <div class="dev-card-icon" style="background:linear-gradient(135deg,#60cdff,#3b82f6);">+</div>
+        <h3>发布原创作品</h3>
+        <p>提交你的原创游戏或程序，作品将标记为 <strong>原创</strong> 并展示在开发者作品集中。</p>
+        <span class="btn btn-accent" style="display:inline-block;padding:6px 14px;font-size:13px;">立即发布</span>
+      </div>
+      <div class="dev-card" onclick="location.href='/developer/projects'" style="cursor:pointer;">
+        <div class="dev-card-icon" style="background:linear-gradient(135deg,#34d399,#059669);">&#9776;</div>
+        <h3>项目管理</h3>
+        <p>管理你的原创项目，可编辑信息、更新版本、发布DLC。</p>
+        <span class="btn btn-ghost" style="display:inline-block;padding:6px 14px;font-size:13px;">进入管理</span>
+      </div>
+      <div class="dev-card">
+        <div class="dev-card-icon" style="background:linear-gradient(135deg,#60cdff,#3b82f6);">&lt;/&gt;</div>
+        <h3>API 管理</h3>
+        <p>管理你的 API 密钥，查看调用统计和请求日志。</p>
+        <button class="btn btn-ghost disabled" disabled>开发中</button>
+      </div>
+      <div class="dev-card">
+        <div class="dev-card-icon" style="background:linear-gradient(135deg,#a78bfa,#7c3aed);">&#9781;</div>
+        <h3>Webhook</h3>
+        <p>配置 Webhook 事件通知，实时获取游戏更新和用户行为。</p>
+        <button class="btn btn-ghost disabled" disabled>开发中</button>
+      </div>
+      <div class="dev-card">
+        <div class="dev-card-icon" style="background:linear-gradient(135deg,#34d399,#059669);">&#9733;</div>
+        <h3>数据分析</h3>
+        <p>查看你的游戏数据看板，包括下载趋势、用户分布等。</p>
+        <button class="btn btn-ghost disabled" disabled>开发中</button>
+      </div>
+      <div class="dev-card" onclick="location.href='/developer/settings'" style="cursor:pointer;">
+        <div class="dev-card-icon" style="background:linear-gradient(135deg,#fbbf24,#d97706);">&#9881;</div>
+        <h3>开发者设置</h3>
+        <p>配置开发者资料、工作室信息与社交媒体链接。</p>
+        <span class="btn btn-ghost" style="display:inline-block;padding:6px 14px;font-size:13px;">进入设置</span>
+      </div>
+      <div class="dev-card">
+        <div class="dev-card-icon" style="background:linear-gradient(135deg,#f472b6,#db2777);">?</div>
+        <h3>SDK / 文档</h3>
+        <p>查阅开发者文档、SDK 集成指南和最佳实践。</p>
+        <button class="btn btn-ghost disabled" disabled>开发中</button>
+      </div>
+      <div class="dev-card">
+        <div class="dev-card-icon" style="background:linear-gradient(135deg,#60cdff,#3b82f6);">&#8593;</div>
+        <h3>沙盒测试</h3>
+        <p>在沙盒环境中测试你的游戏，无需发布即可验证。</p>
+        <button class="btn btn-ghost disabled" disabled>开发中</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){const h=new Date().getHours();document.documentElement.setAttribute('data-theme',(h>=6&&h<18)?'light':'dark');const s=localStorage.getItem('lvmotheme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s);})();
+</script>
+</body>
+</html>

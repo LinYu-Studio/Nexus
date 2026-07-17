@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>开发者申请管理 - Nexus</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="mica" aria-hidden="true"></div>
+<div class="mica-noise" aria-hidden="true"></div>
+
+<div class="title-bar acrylic">
+  <span class="title-text">Nexus</span>
+</div>
+
+<div class="main-layout">
+  <div class="sidebar sidebar-acrylic">
+    <div class="nav-section">
+      <div class="nav-label">游戏</div>
+      <a href="/" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/></svg><span>游戏库</span></a>
+      <a href="/upload" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg><span>上传游戏</span></a>
+      {% if current_user.is_developer %}
+      <a href="/developer" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg><span>开发者平台</span></a>
+      {% endif %}
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">管理</div>
+      <a href="/admin/users" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg><span>用户管理</span></a>
+      <a href="/admin/projects" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg><span>项目管理</span></a>
+      <a href="/admin/appeals" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>申诉管理</span></a>
+      <a href="/admin/price_requests" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg><span>收费申请</span></a>
+      <a href="/admin/recharge" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg><span>用户充值</span></a>
+      <a href="/admin/recharge_requests" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span>充值审核</span></a>
+      <a href="/admin/developer_applications" class="nav-item active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg><span>开发者申请</span></a>
+      <a href="/admin/review_uploads" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg><span>原创作品审核</span></a>
+    </div>
+    <div class="nav-user">
+      <div class="nav-user-avatar">{{ current_user.username[:1].upper() }}</div>
+      <span>{{ current_user.username }}(管理员)</span>
+      <a href="/logout" class="logout-btn">退出</a>
+    </div>
+  </div>
+
+  <div class="content acrylic-layer">
+    <div class="message-section">
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}{% for message in messages %}<div class="message">{{ message }}</div>{% endfor %}{% endif %}
+      {% endwith %}
+    </div>
+
+    <div class="page-header">
+      <h1>开发者申请管理</h1>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>用户名</th>
+            <th>邮箱</th>
+            <th>开发者名称</th>
+            <th>申请理由</th>
+            <th>申请时间</th>
+            <th>状态</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% if applicants %}
+          {% for item in applicants %}
+          <tr>
+            <td>{{ item.user.username }}</td>
+            <td>{{ item.user.email }}</td>
+            <td><strong>{{ item.application.developer_name }}</strong></td>
+            <td style="max-width:200px;word-break:break-word;">{{ item.application.reason }}</td>
+            <td>{{ item.application.applied_at }}</td>
+            <td>
+              {% if item.application.status == 'pending' %}
+              <span style="color:var(--warning);">待审批</span>
+              {% elif item.application.status == 'approved' %}
+              <span style="color:var(--success);">已批准</span>
+              {% elif item.application.status == 'rejected' %}
+              <span style="color:var(--danger);">已拒绝</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if item.application.status == 'pending' %}
+              <form method="POST" action="/admin/developer_application/{{ item.user.id }}/approve" style="display:inline;">
+                <button type="submit" class="btn-accent btn-sm" style="border:none;cursor:pointer;">批准</button>
+              </form>
+              <button class="btn-danger btn-sm" onclick="openRejectModal('{{ item.user.id }}', '{{ item.user.username }}')" style="border:none;cursor:pointer;margin-left:4px;">拒绝</button>
+              {% elif item.application.status == 'approved' %}
+              <span style="font-size:12px;color:var(--text-tertiary);">由 {{ item.application.reviewed_by }} 审批</span>
+              {% elif item.application.status == 'rejected' %}
+              <span style="font-size:12px;color:var(--text-tertiary);">{{ item.application.review_reason or '无原因' }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+          {% else %}
+          <tr>
+            <td colspan="7" style="text-align:center;color:var(--text-tertiary);padding:40px;">暂无开发者申请</td>
+          </tr>
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- 拒绝原因弹窗 -->
+<div class="modal" id="rejectModal" style="display:none;">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3>拒绝开发者申请 - <span id="rejectUserName"></span></h3>
+      <button class="close-btn" onclick="closeRejectModal()" style="background:none;border:none;font-size:22px;color:var(--text-tertiary);cursor:pointer;line-height:1;">&times;</button>
+    </div>
+    <form id="rejectForm" method="POST" action="">
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="reject_reason">拒绝原因</label>
+          <textarea id="reject_reason" name="reject_reason" rows="3" placeholder="请输入拒绝原因" required style="width:100%;padding:8px 10px;background:var(--input-bg);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:13px;resize:vertical;"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn cancel-btn" onclick="closeRejectModal()" style="cursor:pointer;">取消</button>
+        <button type="submit" class="btn-danger" style="cursor:pointer;">确认拒绝</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openRejectModal(userId, username) {
+  document.getElementById('rejectUserName').textContent = username;
+  document.getElementById('rejectForm').action = '/admin/developer_application/' + userId + '/reject';
+  document.getElementById('rejectModal').style.display = 'flex';
+}
+function closeRejectModal() {
+  document.getElementById('rejectModal').style.display = 'none';
+}
+window.onclick = function(event) {
+  const modal = document.getElementById('rejectModal');
+  if (event.target === modal) closeRejectModal();
+}
+(function(){const h=new Date().getHours();document.documentElement.setAttribute('data-theme',(h>=6&&h<18)?'light':'dark');const s=localStorage.getItem('lvmotheme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s);})();
+</script>
+</body>
+</html>
