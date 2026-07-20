@@ -1,4 +1,4 @@
-# 欢迎来到LVMO_GAME
+# 欢迎来到Nexus
 
 这是一个基于Flask的简单游戏发布平台，可以让用户上传、下载和管理游戏文件。
 
@@ -38,7 +38,7 @@ python main.py
 ## 项目结构
 
 ```
-LVMO_GAME/
+Nexus/
 ├── main.py            # 主应用程序文件
 ├── requirements.txt   # Python依赖包列表
 ├── games.json         # 存储游戏信息的JSON文件
