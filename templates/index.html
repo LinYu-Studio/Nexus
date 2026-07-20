@@ -42,13 +42,9 @@
     <div class="nav-section">
       <div class="nav-label">社交</div>
       {% if current_user %}
-      <a href="/mailbox" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
-        <span>邮箱</span>
-      </a>
-      <a href="/search_users" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
-        <span>搜索用户</span>
+      <a href="/friends" class="nav-item">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+        <span>好友</span>
       </a>
       <a href="/appeals" class="nav-item">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg>
@@ -70,10 +66,6 @@
       <a href="/admin/appeals" class="nav-item">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg>
         <span>申诉管理</span>
-      </a>
-      <a href="/admin/price_requests" class="nav-item">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
-        <span>收费申请</span>
       </a>
       <a href="/admin/recharge" class="nav-item">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
@@ -138,6 +130,7 @@
             <div class="wallet-option" id="customerServiceOption">Nexus客服</div>
           </div>
         </div>
+        <button class="btn btn-ghost btn-sm" onclick="showCdkModal()" style="border:none;cursor:pointer;font-size:13px;">激活CDK</button>
         <div class="settings-container">
           <button id="settingsButton" class="settings-button">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -254,7 +247,24 @@
   </div>
 </div>
 
-<!-- Purchase Confirm Popup -->
+<!-- Purchase Confirm Popup + CDK Modal -->
+<div class="modal" id="cdkModal" style="display:none;">
+  <div class="modal-content" style="max-width:400px;">
+    <div class="modal-header">
+      <h3>激活 CDK</h3>
+      <button class="close-btn" onclick="closeCdkModal()" style="background:none;border:none;font-size:22px;color:var(--text-tertiary);cursor:pointer;line-height:1;">&times;</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">输入 CDK 密钥来激活游戏，格式为 XXXX-XXXX-XXXX-XXXX</p>
+      <input type="text" id="cdkInput" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19" style="width:100%;padding:10px 14px;border-radius:var(--radius-sm);border:1px solid var(--border-subtle);background:var(--bg-card);color:var(--text-primary);font-size:16px;font-family:Consolas,monospace;text-align:center;letter-spacing:2px;text-transform:uppercase;outline:none;" oninput="formatCdkInput(this)">
+      <div id="cdkResult" style="margin-top:12px;font-size:13px;display:none;"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn cancel-btn" onclick="closeCdkModal()" style="border:none;cursor:pointer;">取消</button>
+      <button class="btn btn-accent" onclick="activateCdk()" style="border:none;cursor:pointer;">激活</button>
+    </div>
+  </div>
+</div>
 <div class="modal" id="purchaseConfirmPopup" style="display:none;">
   <div class="modal-content">
     <div class="modal-header">
@@ -345,7 +355,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('click', function() { wd.style.display = 'none'; });
     wd.addEventListener('click', function(e) { e.stopPropagation(); });
     document.getElementById('rechargeOption')?.addEventListener('click', function() { showPaymentMethodPopup(); wd.style.display = 'none'; });
-    document.getElementById('customerServiceOption')?.addEventListener('click', function() { window.location.href = '/mailbox?user_id=1'; wd.style.display = 'none'; });
+    document.getElementById('customerServiceOption')?.addEventListener('click', function() { window.location.href = '/friends?user_id=1'; wd.style.display = 'none'; });
   }
 });
 
@@ -419,6 +429,41 @@ function purchaseGame() {
 }
 function closePurchaseConfirmPopup() {
   document.getElementById('purchaseConfirmPopup').style.display = 'none';
+}
+// CDK 激活
+function showCdkModal() {
+  document.getElementById('cdkResult').style.display = 'none';
+  document.getElementById('cdkInput').value = '';
+  document.getElementById('cdkModal').style.display = 'flex';
+}
+function closeCdkModal() {
+  document.getElementById('cdkModal').style.display = 'none';
+}
+function formatCdkInput(input) {
+  let v = input.value.replace(/[^A-Za-z0-9]/g, '').toUpperCase().slice(0, 16);
+  let parts = [];
+  for (let i = 0; i < v.length; i += 4) parts.push(v.slice(i, i + 4));
+  input.value = parts.join('-');
+}
+function activateCdk() {
+  var code = document.getElementById('cdkInput').value.trim();
+  if (!code || code.length < 19) { alert('请输入完整的 CDK'); return; }
+  fetch('/api/cdk/activate', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({code: code})
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    var result = document.getElementById('cdkResult');
+    result.style.display = 'block';
+    if (data.success) {
+      result.style.color = 'var(--success)';
+      result.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg> ' + data.message;
+      setTimeout(function() { closeCdkModal(); location.reload(); }, 2000);
+    } else {
+      result.style.color = 'var(--danger)';
+      result.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:middle;margin-right:4px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> ' + (data.message || '激活失败');
+    }
+  }).catch(function(e) { alert('网络错误'); });
 }
 document.addEventListener('DOMContentLoaded', function() { checkNotifications(); });
 </script>

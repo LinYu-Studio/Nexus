@@ -10,7 +10,11 @@
         "purchased_games": [],
         "is_developer": false,
         "developer_name": null,
-        "developer_application": null
+        "developer_application": null,
+        "last_seen_ts": 1784484493.6133769,
+        "friends": [
+            "4"
+        ]
     },
     {
         "id": "4",
@@ -21,7 +25,9 @@
         "status": "approved",
         "created_at": "2025-10-05 18:19:05",
         "wallet_balance": 0.0,
-        "purchased_games": [],
+        "purchased_games": [
+            "2"
+        ],
         "is_developer": true,
         "developer_name": "LinYu Studio",
         "developer_application": {
@@ -32,6 +38,13 @@
             "reviewed_by": "admin",
             "reviewed_at": "2026-06-06 03:18:41",
             "review_reason": null
-        }
+        },
+        "last_seen_ts": 1784569998.8220477,
+        "purchased_games_info": {
+            "2": "cdk"
+        },
+        "friends": [
+            "1"
+        ]
     }
 ]

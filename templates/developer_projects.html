@@ -32,8 +32,7 @@
     </div>
     <div class="nav-section">
       <div class="nav-label">社交</div>
-      <a href="/mailbox" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><span>邮箱</span></a>
-      <a href="/search_users" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><span>搜索用户</span></a>
+      <a href="/friends" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg><span>好友</span></a>
       <a href="/appeals" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg><span>申诉</span></a>
     </div>
     <div class="nav-user">
@@ -61,7 +60,7 @@
             <span>版本: {{ project.version or '1.0' }}</span>
             <span>下载: {{ project.downloads }}</span>
             <span>{% if project.price and project.price > 0 %}¥{{ "%.2f"|format(project.price) }}{% else %}免费{% endif %}</span>
-            <span>{% if project.is_banned %}<span style="color:var(--danger);">已封禁</span>{% else %}<span style="color:var(--success);">正常</span>{% endif %}</span>
+            <span>{% if project.is_banned %}<span style="color:var(--danger);">已封禁</span>{% elif project.delisted %}<span style="color:var(--danger,#ef4444);">已下架</span>{% else %}<span style="color:var(--success);">正常</span>{% endif %}</span>
             {% if project.review_status == 'pending_review' %}<span style="color:var(--warning);">审核中</span>{% endif %}
           </div>
         </div>
@@ -71,8 +70,8 @@
         <form method="POST" action="/developer/project/{{ project.id }}/toggle_ban">
           <button type="submit" class="btn btn-ghost btn-sm" style="border:none;cursor:pointer;">{{ '解封' if project.is_banned else '封禁' }}</button>
         </form>
-        <form method="POST" action="/developer/project/{{ project.id }}/delete" onsubmit="return confirm('确定删除「{{ project.title }}」？')" style="display:inline;">
-          <button type="submit" class="btn btn-ghost btn-sm" style="border:none;cursor:pointer;color:var(--danger,#ef4444);">删除</button>
+        <form method="POST" action="/developer/project/{{ project.id }}/delete" onsubmit="return confirm('确定下架「{{ project.title }}」？已购买用户仍可访问，但新用户无法获取。')" style="display:inline;">
+          <button type="submit" class="btn btn-ghost btn-sm" style="border:none;cursor:pointer;color:var(--danger,#ef4444);">{{ '重新上架' if project.delisted else '下架' }}</button>
         </form>
         <button class="btn btn-ghost btn-sm" onclick="toggleDlcForm('{{ project.id }}')" style="border:none;cursor:pointer;">+ 发布DLC</button>
         {% if project.price and project.price > 0 %}

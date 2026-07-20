@@ -26,8 +26,7 @@
     </div>
     <div class="nav-section">
       <div class="nav-label">社交</div>
-      <a href="/mailbox" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg><span>邮箱</span></a>
-      <a href="/search_users" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0016 9.5 6.5 6.5 0 109.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg><span>搜索用户</span></a>
+      <a href="/friends" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg><span>好友</span></a>
       <a href="/appeals" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/></svg><span>申诉</span></a>
     </div>
     {% if current_user and current_user.is_admin %}
@@ -36,7 +35,7 @@
       <a href="/admin/users" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg><span>用户管理</span></a>
       <a href="/admin/projects" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg><span>项目管理</span></a>
       <a href="/admin/appeals" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg><span>申诉管理</span></a>
-      <a href="/admin/price_requests" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg><span>收费申请</span></a>
+
       <a href="/admin/recharge" class="nav-item"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg><span>用户充值</span></a>
     </div>
     {% endif %}
@@ -107,8 +106,9 @@
             </div>
           </div>
         </div>
-        <div class="game-actions" style="margin-top:12px;">
+        <div class="game-actions" style="margin-top:12px;display:flex;gap:6px;flex-wrap:wrap;">
           <a href="/download/{{ game.id }}" class="btn download-btn">下载游戏</a>
+          <button class="btn btn-ghost btn-sm" style="border:none;cursor:pointer;color:var(--danger,#ef4444);" onclick="showRemovePopup('{{ game.id }}','{{ game.title }}','{{ game_acquisition.get(game.id, 'free') }}')">移除</button>
         </div>
       </div>
       {% endfor %}
@@ -165,6 +165,38 @@
   <div id="notification-content" style="font-size:13px;color:var(--text-primary);"></div>
 </div>
 
+<!-- 移除游戏 - 免费游戏弹窗 -->
+<div class="modal" id="removeFreeModal" style="display:none;">
+  <div class="modal-content" style="max-width:360px;">
+    <div class="modal-header">
+      <h3>移除此游戏</h3>
+      <button class="close-btn" onclick="closeModal('removeFreeModal')" style="background:none;border:none;font-size:22px;color:var(--text-tertiary);cursor:pointer;line-height:1;">&times;</button>
+    </div>
+    <div class="modal-body" style="text-align:center;padding:20px;">
+      <p id="removeFreeText" style="font-size:14px;color:var(--text-secondary);margin:0 0 16px;"></p>
+      <div style="display:flex;gap:8px;justify-content:center;">
+        <button class="btn btn-ghost" onclick="closeModal('removeFreeModal')" style="border:none;cursor:pointer;">取消</button>
+        <button class="btn btn-accent" onclick="confirmRemove()" style="border:none;cursor:pointer;background:var(--accent);">确认移除</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 移除游戏 - 付费/CDK 弹窗 -->
+<div class="modal" id="removePaidModal" style="display:none;">
+  <div class="modal-content" style="max-width:360px;border-color:var(--danger,#ef4444);">
+    <div class="modal-header" style="background:linear-gradient(135deg,rgba(239,68,68,0.08),rgba(220,38,38,0.05));">
+      <h3 style="color:var(--danger,#ef4444);">⚠ 移除付费内容</h3>
+      <button class="close-btn" onclick="closeModal('removePaidModal')" style="background:none;border:none;font-size:22px;color:var(--text-tertiary);cursor:pointer;line-height:1;">&times;</button>
+    </div>
+    <div class="modal-body" style="text-align:center;padding:20px;">
+      <p id="removePaidText" style="font-size:14px;color:var(--text-secondary);margin:0 0 16px;"></p>
+      <div style="display:flex;gap:8px;justify-content:center;" id="removePaidActions">
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){const h=new Date().getHours();document.documentElement.setAttribute('data-theme',(h>=6&&h<18)?'light':'dark');const s=localStorage.getItem('lvmotheme');if(s==='dark'||s==='light')document.documentElement.setAttribute('data-theme',s);})();
 
@@ -194,7 +226,7 @@ rechargeItem.addEventListener('click', function() {
 });
 customerServiceItem.addEventListener('click', function() {
   walletDropdown.style.display = 'none';
-  window.location.href = '/mailbox';
+  window.location.href = '/friends';
 });
 alipayOption.addEventListener('click', function() {
   paymentModal.style.display = 'none';
@@ -247,6 +279,41 @@ function showNotification(message) {
   notificationContent.textContent = message;
   notification.style.display = 'block';
   setTimeout(() => { notification.style.display = 'none'; }, 3000);
+}
+// 移除游戏弹窗
+var removeGameId = '';
+function showRemovePopup(gameId, gameTitle, method) {
+  removeGameId = gameId;
+  if (method === 'free') {
+    document.getElementById('removeFreeText').textContent = '确定要从「我的游戏」中移除《' + gameTitle + '》吗？';
+    document.getElementById('removeFreeModal').style.display = 'flex';
+  } else {
+    var text = method === 'paid' ? '《' + gameTitle + '》为付费购买内容，确定要移除此游戏吗？' : '《' + gameTitle + '》为 CDK 激活内容，移除后不退还 CDK，确定要移除吗？';
+    document.getElementById('removePaidText').textContent = text;
+    var actions = document.getElementById('removePaidActions');
+    actions.innerHTML = '';
+    if (method === 'paid') {
+      actions.innerHTML += '<button class="btn btn-accent btn-sm" style="border:none;cursor:pointer;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;" onclick="requestRefund(\'' + gameId + '\');closeModal(\'removePaidModal\')">退款</button>';
+      actions.innerHTML += '<button class="btn btn-ghost btn-sm" style="border:none;cursor:pointer;color:var(--danger,#ef4444);" onclick="confirmRemove();closeModal(\'removePaidModal\')">移除此游戏</button>';
+    } else {
+      actions.innerHTML += '<button class="btn btn-ghost btn-sm" style="border:none;cursor:pointer;color:var(--danger,#ef4444);" onclick="confirmRemove();closeModal(\'removePaidModal\')">移除</button>';
+    }
+    actions.innerHTML += '<button class="btn btn-ghost btn-sm" style="border:none;cursor:pointer;" onclick="closeModal(\'removePaidModal\')">取消</button>';
+    document.getElementById('removePaidModal').style.display = 'flex';
+  }
+}
+function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+function confirmRemove() {
+  fetch('/api/game/remove/' + removeGameId, {method:'POST'})
+    .then(function(r){return r.json()}).then(function(d){
+      showNotification(d.message);
+      if(d.success) setTimeout(function(){location.reload()},1000);
+    }).catch(function(e){showNotification('网络错误')});
+  closeModal('removeFreeModal');
+}
+function requestRefund(gameId) {
+  showNotification('退款申请已提交，请联系管理员处理');
+  closeModal('removePaidModal');
 }
 window.addEventListener('click', function(event) {
   if (event.target === paymentModal) paymentModal.style.display = 'none';

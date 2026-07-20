@@ -1,9 +1,11 @@
 import os
 import json
 import time
+import io
+import urllib.parse
 import zipfile
 from datetime import datetime, timedelta
-from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash, session, jsonify, send_file, g
+from flask import Flask, render_template, request, redirect, url_for, send_from_directory, flash, session, jsonify, send_file, g, stream_with_context, Response
 from werkzeug.exceptions import RequestEntityTooLarge
 import bcrypt
 import os
@@ -91,6 +93,19 @@ def ensure_directories():
             os.makedirs(dir_path)
     # 确保临时上传目录存在
     ensure_temp_uploads_exists()
+
+# 生成唯一游戏 ID（持久化计数器，避免删除游戏后 ID 复用）
+def generate_game_id():
+    counter_file = 'game_id_counter.txt'
+    counter = 0
+    if os.path.exists(counter_file):
+        with open(counter_file, 'r') as f:
+            try: counter = int(f.read().strip())
+            except: counter = 0
+    counter += 1
+    with open(counter_file, 'w') as f:
+        f.write(str(counter))
+    return str(counter)
 
 # 加载游戏列表
 def load_games():
@@ -513,6 +528,10 @@ def index():
     else:
         games = [g for g in games if g.get('origin') != 'original' or g.get('review_status') in ('approved', 'auto_approved')]
     
+    # 排除已下架的游戏（管理员仍可见）
+    if not current_user or not current_user.get('is_admin'):
+        games = [g for g in games if not g.get('delisted', False)]
+    
     # 获取搜索参数
     search_query = request.args.get('search', '').strip()
     
@@ -536,52 +555,80 @@ def index():
     
     return render_template('index.html', games=games, current_user=current_user, search_query=search_query)
 
-# 邮箱页面
-@app.route('/mailbox')
-def mailbox():
+# ===== Steam 风格好友系统 =====
+
+def load_friend_requests():
+    f = 'friend_requests.json'
+    if os.path.exists(f):
+        with open(f, 'r', encoding='utf-8') as fp:
+            return json.load(fp)
+    return []
+
+def save_friend_requests(requests):
+    with open('friend_requests.json', 'w', encoding='utf-8') as fp:
+        json.dump(requests, fp, ensure_ascii=False, indent=4)
+
+# 好友主页（好友列表 + 请求 + 搜索）
+@app.route('/friends')
+def friends_page():
     if not is_logged_in():
         flash('请先登录')
         return redirect(url_for('login'))
     
     current_user = get_current_user()
-    conversations = load_conversations()
+    users = load_users()
     
-    # 获取当前用户参与的所有对话
-    user_conversations = []
+    # 获取好友列表
+    friend_ids = current_user.get('friends', [])
+    friends = [u for u in users if u['id'] in friend_ids]
+    
+    # 计算在线状态（5分钟内活跃记为在线）
+    import time
+    now_ts = time.time()
+    for f in friends:
+        last_seen = f.get('last_seen_ts', 0)
+        f['is_online'] = (now_ts - last_seen) < 300  # 5分钟
+    
+    # 获取收到的好友请求
+    all_requests = load_friend_requests()
+    incoming = [r for r in all_requests if r['to_id'] == current_user['id'] and r['status'] == 'pending']
+    outgoing = [r for r in all_requests if r['from_id'] == current_user['id'] and r['status'] == 'pending']
+    
+    # 补充请求者信息
+    for r in incoming:
+        r['from_user'] = next((u for u in users if u['id'] == r['from_id']), None)
+    for r in outgoing:
+        r['to_user'] = next((u for u in users if u['id'] == r['to_id']), None)
+    
+    # 对话列表（整合到好友页面）
+    conversations = load_conversations()
+    user_convs = []
     for conv in conversations:
         if conv['user1_id'] == current_user['id'] or conv['user2_id'] == current_user['id']:
-            # 确定对话对象
             if conv['user1_id'] == current_user['id']:
-                other_user_id = conv['user2_id']
-                other_user_name = conv['user2_name']
+                other_id, other_name = conv['user2_id'], conv['user2_name']
             else:
-                other_user_id = conv['user1_id']
-                other_user_name = conv['user1_name']
-            
-            # 获取最新消息
-            latest_message = conv['messages'][-1] if conv['messages'] else None
-            
-            user_conversations.append({
-                'conversation_id': f"{min(conv['user1_id'], conv['user2_id'])}_{max(conv['user1_id'], conv['user2_id'])}",
-                'other_user_id': other_user_id,
-                'other_user_name': other_user_name,
-                'latest_message': latest_message,
+                other_id, other_name = conv['user1_id'], conv['user1_name']
+            latest = conv['messages'][-1] if conv['messages'] else None
+            user_convs.append({
+                'other_user_id': other_id,
+                'other_user_name': other_name,
+                'latest_message': latest,
                 'last_updated': conv['last_updated'],
                 'message_count': len(conv['messages'])
             })
+    user_convs.sort(key=lambda x: x['last_updated'], reverse=True)
     
-    # 按最后更新时间排序
-    user_conversations.sort(key=lambda x: x['last_updated'], reverse=True)
-    
-    return render_template('mailbox.html', conversations=user_conversations, current_user=current_user)
+    return render_template('friends.html', current_user=current_user, friends=friends,
+                           incoming_requests=incoming, outgoing_requests=outgoing,
+                           conversations=user_convs)
 
-# 搜索用户页面
-@app.route('/search_users', methods=['GET', 'POST'])
-def search_users_route():
+# 搜索用户（添加好友）
+@app.route('/friends/search', methods=['GET', 'POST'])
+def friends_search():
     if not is_logged_in():
         flash('请先登录')
         return redirect(url_for('login'))
-    
     current_user = get_current_user()
     results = []
     query = ''
@@ -590,12 +637,163 @@ def search_users_route():
         query = request.form.get('query', '').strip()
         if query:
             results = search_users(query)
-            # 排除当前用户自己
             results = [u for u in results if u['id'] != current_user['id']]
-        else:
-            flash('请输入搜索内容')
     
-    return render_template('search_users.html', results=results, query=query, current_user=current_user)
+    # 获取已发送的请求列表
+    all_requests = load_friend_requests()
+    sent_ids = [r['to_id'] for r in all_requests if r['from_id'] == current_user['id'] and r['status'] == 'pending']
+    
+    return render_template('friends_search.html', current_user=current_user, results=results,
+                           query=query, sent_ids=sent_ids, friend_ids=current_user.get('friends', []))
+
+# 发送好友请求
+@app.route('/friends/request/<to_id>', methods=['POST'])
+def send_friend_request(to_id):
+    if not is_logged_in():
+        flash('请先登录')
+        return redirect(url_for('login'))
+    current_user = get_current_user()
+    
+    if current_user['id'] == to_id:
+        flash('不能添加自己为好友')
+        return redirect(url_for('friends_search'))
+    
+    users = load_users()
+    target = next((u for u in users if u['id'] == to_id), None)
+    if not target:
+        flash('用户不存在')
+        return redirect(url_for('friends_search'))
+    
+    # 检查是否已经是好友
+    if to_id in current_user.get('friends', []):
+        flash('对方已经是你的好友')
+        return redirect(url_for('friends_search'))
+    
+    # 检查是否已有待处理的请求
+    all_requests = load_friend_requests()
+    existing = next((r for r in all_requests if 
+        ((r['from_id'] == current_user['id'] and r['to_id'] == to_id) or
+         (r['from_id'] == to_id and r['to_id'] == current_user['id'])) and
+        r['status'] == 'pending'), None)
+    if existing:
+        flash('已发送过好友请求，请等待对方处理')
+        return redirect(url_for('friends_search'))
+    
+    all_requests.append({
+        'from_id': current_user['id'],
+        'from_name': current_user['username'],
+        'to_id': to_id,
+        'to_name': target['username'],
+        'status': 'pending',
+        'time': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    })
+    save_friend_requests(all_requests)
+    flash(f'已向 {target["username"]} 发送好友请求')
+    return redirect(url_for('friends_search'))
+
+# 接受好友请求
+@app.route('/friends/accept/<from_id>', methods=['POST'])
+def accept_friend_request(from_id):
+    if not is_logged_in():
+        flash('请先登录')
+        return redirect(url_for('login'))
+    current_user = get_current_user()
+    
+    all_requests = load_friend_requests()
+    req = next((r for r in all_requests if r['from_id'] == from_id and r['to_id'] == current_user['id'] and r['status'] == 'pending'), None)
+    if not req:
+        flash('好友请求不存在')
+        return redirect(url_for('friends_page'))
+    
+    req['status'] = 'accepted'
+    save_friend_requests(all_requests)
+    
+    # 双方添加好友
+    users = load_users()
+    for u in users:
+        if u['id'] == current_user['id']:
+            if 'friends' not in u:
+                u['friends'] = []
+            if from_id not in u['friends']:
+                u['friends'].append(from_id)
+        if u['id'] == from_id:
+            if 'friends' not in u:
+                u['friends'] = []
+            if current_user['id'] not in u['friends']:
+                u['friends'].append(current_user['id'])
+    save_users(users)
+    # 刷新 session
+    session['user'] = next(u for u in users if u['id'] == current_user['id'])
+    
+    flash('好友请求已接受')
+    return redirect(url_for('friends_page'))
+
+# 拒绝好友请求
+@app.route('/friends/reject/<from_id>', methods=['POST'])
+def reject_friend_request(from_id):
+    if not is_logged_in():
+        flash('请先登录')
+        return redirect(url_for('login'))
+    current_user = get_current_user()
+    
+    all_requests = load_friend_requests()
+    req = next((r for r in all_requests if r['from_id'] == from_id and r['to_id'] == current_user['id'] and r['status'] == 'pending'), None)
+    if req:
+        req['status'] = 'rejected'
+        save_friend_requests(all_requests)
+    
+    flash('好友请求已拒绝')
+    return redirect(url_for('friends_page'))
+
+# 删除好友
+@app.route('/friends/remove/<friend_id>', methods=['POST'])
+def remove_friend(friend_id):
+    if not is_logged_in():
+        flash('请先登录')
+        return redirect(url_for('login'))
+    current_user = get_current_user()
+    
+    users = load_users()
+    for u in users:
+        if u['id'] == current_user['id'] and 'friends' in u:
+            if friend_id in u['friends']:
+                u['friends'].remove(friend_id)
+        if u['id'] == friend_id and 'friends' in u:
+            if current_user['id'] in u['friends']:
+                u['friends'].remove(current_user['id'])
+    save_users(users)
+    session['user'] = next(u for u in users if u['id'] == current_user['id'])
+    
+    flash('好友已删除')
+    return redirect(url_for('friends_page'))
+
+# 在线状态 API
+@app.route('/api/friends/online')
+def friends_online_api():
+    if not is_logged_in():
+        return jsonify({'success': False}), 401
+    current_user = get_current_user()
+    users = load_users()
+    friend_ids = current_user.get('friends', [])
+    import time
+    now_ts = time.time()
+    online_ids = []
+    for u in users:
+        if u['id'] in friend_ids:
+            last_seen = u.get('last_seen_ts', 0)
+            if now_ts - last_seen < 300:
+                online_ids.append(u['id'])
+    return jsonify({'success': True, 'online_ids': online_ids})
+
+# 旧版邮箱/搜索用户重定向到好友系统
+@app.route('/mailbox')
+def mailbox_redirect():
+    return redirect(url_for('friends_page'))
+
+@app.route('/search_users')
+def search_users_redirect():
+    return redirect(url_for('friends_page'))
+
 
 # 与特定用户的对话页面
 @app.route('/conversation/<user_id>', methods=['GET', 'POST'])
@@ -738,7 +936,14 @@ def login():
         if unread_notifications:
             # 将未读通知信息存储到session中
             session['has_unread_notifications'] = True
-            
+        
+        # 更新最后在线时间
+        import time
+        user_idx = next((i for i, u in enumerate(users) if u['id'] == user['id']), None)
+        if user_idx is not None:
+            users[user_idx]['last_seen_ts'] = time.time()
+            save_users(users)
+        
         flash('登录成功！')
         return redirect(url_for('index'))
         
@@ -1057,7 +1262,7 @@ def upload_final():
             return redirect(url_for('upload'))
         
         # 创建游戏目录
-        game_id = str(len(load_games()) + 1)
+        game_id = generate_game_id()
         game_dir = os.path.join(app.config['UPLOAD_FOLDER'], game_id)
         os.makedirs(game_dir, exist_ok=True)
         
@@ -1147,7 +1352,8 @@ def upload_final():
                     zip_ref.extractall(game_dir)
                 is_folder = True
                 print(f"ZIP文件解压完成")
-                # 删除原始ZIP文件，避免重复
+                # 保留原始ZIP文件作为下载源，避免下载时重新打包
+                shutil.copy2(file_path, os.path.join(game_dir, '_source.zip'))
                 os.remove(file_path)
             except zipfile.BadZipFile:
                 flash('ZIP文件格式不正确')
@@ -1320,7 +1526,12 @@ def purchase_game():
     
     # 扣款并添加游戏到已购买列表
     users[user_index]['wallet_balance'] -= actual_price
+    if 'purchased_games' not in users[user_index]:
+        users[user_index]['purchased_games'] = []
     users[user_index]['purchased_games'].append(game_id)
+    if 'purchased_games_info' not in users[user_index]:
+        users[user_index]['purchased_games_info'] = {}
+    users[user_index]['purchased_games_info'][game_id] = 'paid'
     
     # 保存用户数据
     save_users(users)
@@ -1334,6 +1545,72 @@ def purchase_game():
     )
     
     return jsonify({'success': True, 'message': '购买成功'})
+
+# CDK 激活
+@app.route('/api/cdk/activate', methods=['POST'])
+def cdk_activate():
+    if not is_logged_in():
+        return jsonify({'success': False, 'message': '请先登录'}), 401
+    
+    data = request.get_json()
+    code = data.get('code', '').strip().upper()
+    
+    if not code:
+        return jsonify({'success': False, 'message': '请输入 CDK'}), 400
+    
+    # 校验格式
+    import re
+    if not re.match(r'^[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}$', code):
+        return jsonify({'success': False, 'message': 'CDK 格式不正确，格式为 XXXX-XXXX-XXXX-XXXX'}), 400
+    
+    # 加载 CDK 数据
+    cdks = load_cdks()
+    cdk = next((c for c in cdks if c['code'] == code), None)
+    
+    if not cdk:
+        return jsonify({'success': False, 'message': 'CDK 不存在'}), 404
+    
+    if cdk.get('used_by'):
+        return jsonify({'success': False, 'message': '该 CDK 已被使用'}), 400
+    
+    game_id = cdk['game_id']
+    games = load_games()
+    game = next((g for g in games if g['id'] == game_id), None)
+    
+    if not game:
+        return jsonify({'success': False, 'message': '关联游戏不存在'}), 404
+    
+    if game.get('is_banned', False):
+        return jsonify({'success': False, 'message': '该游戏已被封禁，无法激活'}), 400
+    
+    # 更新用户
+    current_user = get_current_user()
+    users = load_users()
+    user_index = next((i for i, u in enumerate(users) if u['id'] == current_user['id']), None)
+    
+    if user_index is None:
+        return jsonify({'success': False, 'message': '用户不存在'}), 404
+    
+    if 'purchased_games' not in users[user_index]:
+        users[user_index]['purchased_games'] = []
+    
+    if game_id in users[user_index]['purchased_games']:
+        return jsonify({'success': False, 'message': '您已拥有该游戏'}), 400
+    
+    # 标记 CDK 已使用
+    cdk['used_by'] = current_user['username']
+    cdk['used_at'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    save_cdks(cdks)
+    
+    # 添加游戏到用户
+    if 'purchased_games_info' not in users[user_index]:
+        users[user_index]['purchased_games_info'] = {}
+    users[user_index]['purchased_games'].append(game_id)
+    users[user_index]['purchased_games_info'][game_id] = 'cdk'
+    save_users(users)
+    session['user'] = users[user_index]
+    
+    return jsonify({'success': True, 'message': f'CDK 激活成功！已获得游戏《{game["title"]}》'})
 
 # ===== 支付系统（聚合支付异步通知） =====
 import hashlib
@@ -1545,6 +1822,17 @@ def download(game_id):
         flash('该项目已被封禁，无法下载')
         return redirect(url_for('index'))
     
+    # 检查游戏是否已下架（已购买的用户仍然可以下载）
+    if game.get('delisted', False):
+        if not is_logged_in():
+            flash('该游戏已下架')
+            return redirect(url_for('login'))
+        current_user = get_current_user()
+        if 'purchased_games' not in current_user or game_id not in current_user['purchased_games']:
+            flash('该游戏已下架，无法获取')
+            return redirect(url_for('index'))
+        # 已购买用户继续下载
+    
     # 检查游戏是否需要付费
     game_price = game.get('price', 0)
     if game_price > 0:
@@ -1614,45 +1902,46 @@ def download(game_id):
     
     # 检查是否是文件夹类型的游戏
     if game.get('is_folder', False):
-        # 如果是文件夹类型，创建一个临时ZIP文件包含整个游戏文件夹
-        import tempfile
-        import zipfile
+        game_dir = os.path.join(app.config['UPLOAD_FOLDER'], game_id)
         
-        # 创建临时ZIP文件
-        with tempfile.NamedTemporaryFile(suffix='.zip', delete=False) as temp_zip:
-            temp_zip_path = temp_zip.name
+        # 如果保存了原始 ZIP，直接发送，零打包开销
+        source_zip = os.path.join(game_dir, '_source.zip')
+        if os.path.exists(source_zip):
+            zip_filename = f"{game['title']}.zip"
+            return send_from_directory(game_dir, '_source.zip', as_attachment=True, download_name=zip_filename)
         
-        # 将游戏文件夹内容添加到ZIP文件
-        with zipfile.ZipFile(temp_zip_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
-            # 获取原始上传的ZIP文件名（如果是单个ZIP文件上传的情况）
-            original_zip = game['filename'] if game['filename'] and game['filename'].lower().endswith('.zip') else None
-            
+        # 没有原始 ZIP 才重新打包（旧数据兼容）
+        original_zip = game['filename'] if game['filename'] and game['filename'].lower().endswith('.zip') else None
+        zip_filename = f"{game['title']}.zip"
+        
+        buffer = io.BytesIO()
+        with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zf:
             for root, dirs, files in os.walk(game_dir):
                 for file in files:
-                    # 排除原始上传的ZIP文件，只打包解压后的内容
                     if original_zip and file == original_zip:
                         continue
-                        
                     file_path = os.path.join(root, file)
                     arcname = os.path.relpath(file_path, game_dir)
-                    zipf.write(file_path, arcname)
+                    zf.write(file_path, arcname)
         
-        # 提供临时ZIP文件下载
-        zip_filename = f"{game['title']}_完整游戏.zip"
-        print(f"下载游戏ZIP文件: {zip_filename}")
+        buffer.seek(0)
+        total_size = buffer.getbuffer().nbytes
         
-        # 创建一个响应对象，发送ZIP文件并删除临时文件
-        from flask import send_file, after_this_request
+        def generate():
+            while True:
+                chunk = buffer.read(262144)
+                if not chunk:
+                    break
+                yield chunk
         
-        @after_this_request
-        def cleanup(response):
-            try:
-                os.remove(temp_zip_path)
-            except Exception as e:
-                print(f"清理临时文件时出错: {e}")
-            return response
-        
-        return send_file(temp_zip_path, as_attachment=True, download_name=zip_filename)
+        return Response(
+            stream_with_context(generate()),
+            mimetype='application/zip',
+            headers={
+                'Content-Disposition': f"attachment; filename*=UTF-8''{urllib.parse.quote(zip_filename)}",
+                'Content-Length': str(total_size),
+            }
+        )
     
     # 检查文件是否存在
     file_path = os.path.join(game_dir, filename)
@@ -1820,6 +2109,58 @@ def admin_user_recharge():
     
     return jsonify({'success': True, 'message': f'成功为用户{users[user_index]["username"]}{action_text}{amount}元'})
 
+# 自助获取免费游戏
+@app.route('/api/game/claim/<game_id>', methods=['POST'])
+def claim_free_game(game_id):
+    if not is_logged_in():
+        return jsonify({'success': False, 'message': '未登录'}), 401
+    current_user = get_current_user()
+    games = load_games()
+    game = next((g for g in games if g['id'] == game_id), None)
+    if not game:
+        return jsonify({'success': False, 'message': '游戏不存在'}), 404
+    price = game.get('price', 0)
+    if price and price > 0:
+        return jsonify({'success': False, 'message': '该游戏需要购买'}), 400
+    
+    users = load_users()
+    user_index = next((i for i, u in enumerate(users) if u['id'] == current_user['id']), None)
+    if user_index is None:
+        return jsonify({'success': False, 'message': '用户不存在'}), 404
+    
+    if 'purchased_games' not in users[user_index]:
+        users[user_index]['purchased_games'] = []
+    if 'purchased_games_info' not in users[user_index]:
+        users[user_index]['purchased_games_info'] = {}
+    
+    if game_id in users[user_index]['purchased_games']:
+        return jsonify({'success': False, 'message': '您已拥有该游戏'}), 400
+    
+    users[user_index]['purchased_games'].append(game_id)
+    users[user_index]['purchased_games_info'][game_id] = 'free'
+    save_users(users)
+    session['user'] = users[user_index]
+    return jsonify({'success': True, 'message': f'已添加游戏《{game["title"]}》到我的游戏'})
+
+# 移除游戏（我的游戏）
+@app.route('/api/game/remove/<game_id>', methods=['POST'])
+def remove_my_game(game_id):
+    if not is_logged_in():
+        return jsonify({'success': False, 'message': '未登录'}), 401
+    current_user = get_current_user()
+    users = load_users()
+    user_index = next((i for i, u in enumerate(users) if u['id'] == current_user['id']), None)
+    if user_index is None:
+        return jsonify({'success': False, 'message': '用户不存在'}), 404
+    
+    if 'purchased_games' in users[user_index] and game_id in users[user_index]['purchased_games']:
+        users[user_index]['purchased_games'].remove(game_id)
+    if 'purchased_games_info' in users[user_index] and game_id in users[user_index]['purchased_games_info']:
+        del users[user_index]['purchased_games_info'][game_id]
+    save_users(users)
+    session['user'] = users[user_index]
+    return jsonify({'success': True, 'message': '游戏已移除'})
+
 # 我的游戏页面
 @app.route('/my_games')
 def my_games():
@@ -1831,6 +2172,8 @@ def my_games():
     # 确保用户有已购买游戏字段
     if 'purchased_games' not in current_user:
         current_user['purchased_games'] = []
+    if 'purchased_games_info' not in current_user:
+        current_user['purchased_games_info'] = {}
     
     # 加载所有游戏
     all_games = load_games()
@@ -1845,7 +2188,7 @@ def my_games():
             game['file_size'] = format_file_size(game_size)
             purchased_games.append(game)
     
-    return render_template('my_games.html', games=purchased_games, current_user=current_user)
+    return render_template('my_games.html', games=purchased_games, current_user=current_user, game_acquisition=current_user.get('purchased_games_info', {}))
 
 # 处理官方安全验证
 @app.route('/admin/project/verify/<game_id>', methods=['POST'])
@@ -2113,17 +2456,11 @@ def delete(game_id):
             flash('您没有权限删除此游戏')
             return redirect(url_for('index'))
     
-    # 删除游戏文件
-    game_dir = os.path.join(app.config['UPLOAD_FOLDER'], game_id)
-    if os.path.exists(game_dir):
-        import shutil
-        shutil.rmtree(game_dir)
-    
-    # 从列表中删除游戏
-    games.remove(game)
+    # 软删除/重新上架：切换 delisted 标记
+    game['delisted'] = not game.get('delisted', False)
     save_games(games)
     
-    flash('游戏删除成功！')
+    flash('游戏已重新上架' if not game['delisted'] else '游戏已下架')
     return redirect(url_for('index'))
 
 # 加载申诉列表
@@ -2445,16 +2782,11 @@ def developer_project_delete(game_id):
         flash('项目不存在或无权操作')
         return redirect(url_for('developer_projects'))
     
-    games = [g for g in games if g['id'] != game_id]
+    # 软删除/重新上架：切换 delisted 标记（ID 永远留存，已购买用户不受影响）
+    game['delisted'] = not game.get('delisted', False)
     save_games(games)
     
-    # 删除游戏目录
-    import shutil
-    game_dir = os.path.join(app.config['UPLOAD_FOLDER'], game_id)
-    if os.path.exists(game_dir):
-        shutil.rmtree(game_dir)
-    
-    flash('项目已删除')
+    flash('项目已重新上架' if not game['delisted'] else '项目已下架')
     return redirect(url_for('developer_projects'))
 
 # 封禁/解封项目
@@ -2590,7 +2922,24 @@ def load_cdks():
     f = 'cdk_records.json'
     if os.path.exists(f):
         with open(f, 'r', encoding='utf-8') as fp:
-            return json.load(fp)
+            cdks = json.load(fp)
+        # 清理已删除游戏的 CDK，并同步游戏标题
+        games = load_games()
+        game_map = {g['id']: g['title'] for g in games}
+        valid = []
+        changed = False
+        for c in cdks:
+            if c['game_id'] not in game_map:
+                changed = True
+                continue  # 游戏已删除，去掉相关 CDK
+            # 同步游戏标题（开发者可能重命名了游戏）
+            if c.get('game_title') != game_map[c['game_id']]:
+                c['game_title'] = game_map[c['game_id']]
+                changed = True
+            valid.append(c)
+        if changed:
+            save_cdks(valid)
+        return valid
     return []
 
 def save_cdks(cdks):
@@ -2798,7 +3147,7 @@ def developer_upload_final():
             return redirect(url_for('developer_upload'))
         
         games = load_games()
-        game_id = str(len(games) + 1)
+        game_id = generate_game_id()
         
         # 处理上传的文件
         main_filename = None
@@ -2864,6 +3213,7 @@ def developer_upload_final():
                     with zipfile.ZipFile(file_path, 'r') as zip_ref:
                         zip_ref.extractall(game_dir)
                     is_folder = True
+                    shutil.copy2(file_path, os.path.join(game_dir, '_source.zip'))
                     os.remove(file_path)
                 except zipfile.BadZipFile:
                     flash('ZIP文件格式不正确')
@@ -3308,88 +3658,6 @@ def serve_evidence_file(file_path):
     return send_file(full_path, as_attachment=True)
 
 # 管理员查看所有收费申请
-@app.route('/admin/price_requests')
-def admin_price_requests():
-    if not is_admin():
-        flash('您没有权限访问此页面')
-        return redirect(url_for('index'))
-    
-    price_requests = load_price_requests()
-    
-    # 按请求时间倒序排序
-    price_requests.sort(key=lambda x: x['request_time'], reverse=True)
-    
-    # 分类请求
-    pending_requests = [req for req in price_requests if req['status'] == 'pending']
-    approved_requests = [req for req in price_requests if req['status'] == 'approved']
-    rejected_requests = [req for req in price_requests if req['status'] == 'rejected']
-    
-    return render_template('admin_price_requests.html', 
-                          pending_requests=pending_requests, 
-                          approved_requests=approved_requests, 
-                          rejected_requests=rejected_requests, 
-                          current_user=get_current_user())
-
-# 管理员处理收费申请
-@app.route('/admin/process_price_request', methods=['POST'])
-def process_price_request():
-    if not is_admin():
-        flash('您没有权限访问此页面')
-        return redirect(url_for('index'))
-    
-    request_id = request.form.get('request_id')
-    action = request.form.get('action')
-    feedback = request.form.get('feedback', '').strip()
-    
-    # 加载价格申请
-    price_requests = load_price_requests()
-    request_index = next((i for i, req in enumerate(price_requests) if str(req['id']) == request_id), None)
-    
-    if request_index is None:
-        flash('收费申请不存在')
-        return redirect(url_for('admin_price_requests'))
-    
-    current_request = price_requests[request_index]
-    current_user = get_current_user()
-    
-    # 如果是通过请求
-    if action == 'approve':
-        # 检查申请用户是否为开发者，非开发者价格不能超过10元
-        users = load_users()
-        req_user = next((u for u in users if u['id'] == current_request['user_id']), None)
-        if req_user and not req_user.get('is_developer') and current_request['requested_price'] > 10:
-            flash('不能批准：该用户不是开发者，项目价格最高只能设为10元')
-            return redirect(url_for('admin_price_requests'))
-        
-        price_requests[request_index]['status'] = 'approved'
-        price_requests[request_index]['processed_by'] = current_user['username']
-        price_requests[request_index]['processed_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        price_requests[request_index]['admin_feedback'] = feedback
-        
-        # 更新游戏价格
-        games = load_games()
-        game_index = next((i for i, g in enumerate(games) if g['id'] == current_request['project_id']), None)
-        if game_index is not None:
-            games[game_index]['price'] = current_request['requested_price']
-            save_games(games)
-        
-        flash('收费申请已通过')
-    # 如果是拒绝请求
-    elif action == 'reject':
-        price_requests[request_index]['status'] = 'rejected'
-        price_requests[request_index]['processed_by'] = current_user['username']
-        price_requests[request_index]['processed_time'] = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        price_requests[request_index]['admin_feedback'] = feedback
-        
-        # 发送拒绝邮件通知
-        send_rejection_email(current_request, feedback)
-        
-        flash('收费申请已拒绝并已发送邮件通知')
-    
-    # 保存更新后的价格申请
-    save_price_requests(price_requests)
-    return redirect(url_for('admin_price_requests'))
-
 # 确保必要的目录存在（包括申诉证据目录）
 def ensure_directories():
     for dir_path in [app.config['UPLOAD_FOLDER'], app.config['STATIC_FOLDER'], app.config['TEMPLATES_FOLDER'], 'appeal_evidence']:
